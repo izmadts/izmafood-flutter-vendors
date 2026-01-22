@@ -4,8 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:izma_foods_vendor/pages/auth/login_page.dart';
 import 'package:izma_foods_vendor/pages/auth/register_page_one.dart';
-import 'auth/login_page.dart';
+
 import 'widget/izma_radial_gradient_container.dart';
 
 class SplashPage extends StatefulWidget {
@@ -40,7 +41,7 @@ class _SplashPageState extends State<SplashPage> {
 
   init() async {
     await Future.delayed(Duration(seconds: kDebugMode ? 0 : 5));
-    Get.offAll(() => RegisterPageOne());
+    Get.offAll(() => LoginPage());
   }
 
   @override

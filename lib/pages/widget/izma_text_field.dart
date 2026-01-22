@@ -1,7 +1,5 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get_navigation/get_navigation.dart';
+
 import '../../config/theme.dart';
 
 class IzmaTextField extends StatelessWidget {
@@ -17,7 +15,11 @@ class IzmaTextField extends StatelessWidget {
     this.onTap,
     this.enabled = true,
     this.maxLines,
-    this.disablePadding = false,
+    this.validator,
+    this.focusNode,
+    this.nextFocusNode,
+    this.textInputType,
+    this.prefix,
   });
 
   final double borderRadius;
@@ -30,24 +32,41 @@ class IzmaTextField extends StatelessWidget {
   final void Function()? onTap;
   final bool enabled;
   final int? maxLines;
-  final bool disablePadding;
+  final String? Function(String?)? validator;
+  final FocusNode? focusNode;
+  final FocusNode? nextFocusNode;
+  final TextInputType? textInputType;
+  final String? prefix;
 
   @override
   Widget build(BuildContext context) {
     final iconSize = 20.0;
     final iconWidth = 45.0;
     return Container(
-      height: maxLines == null ? 75 : null,
-      padding: EdgeInsets.symmetric(horizontal: disablePadding ? 0 : kdPadding),
+      height: maxLines == null ? 80 : null,
+      padding: EdgeInsets.symmetric(horizontal: kdPadding),
       child: GestureDetector(
         onTap: onTap,
         child: TextFormField(
           enabled: enabled,
+          validator: validator,
           controller: controller,
           obscureText: obscureText,
-          maxLines: maxLines,
+          maxLines: maxLines ?? 1,
+          keyboardType: textInputType,
+          focusNode: focusNode,
+          onEditingComplete: () {
+            if (focusNode != null) {
+              focusNode!.unfocus();
+            }
+            if (nextFocusNode != null) {
+              nextFocusNode!.requestFocus();
+            }
+          },
           decoration: InputDecoration(
-            errorStyle: TextStyle(height: 0.5),
+            prefixText: prefix?.padRight(03),
+            prefixStyle: TextStyle(),
+            errorStyle: TextStyle(height: 0.7, fontWeight: FontWeight.w400),
             fillColor: kcGreyColor,
             filled: true,
             focusColor: Colors.white,
@@ -58,7 +77,7 @@ class IzmaTextField extends StatelessWidget {
             suffixIconConstraints: BoxConstraints(minWidth: iconWidth),
             suffixIconColor: Colors.black,
             hintText: hintText,
-            hintStyle: TextStyle(fontSize: 13),
+            hintStyle: TextStyle(fontSize: 12),
             contentPadding: EdgeInsets.symmetric(horizontal: 5, vertical: 15),
             label: label == null ? null : Text(label!),
             border: OutlineInputBorder(

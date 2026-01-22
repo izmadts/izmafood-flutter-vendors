@@ -23,7 +23,8 @@ class OrderDetailsPage extends StatelessWidget {
                   children: [
                     for (int i = 0; i < 3; i++)
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: kdPadding, vertical: kdPadding / 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: kdPadding, vertical: kdPadding / 2),
                         child: Column(
                           children: [
                             Container(
@@ -36,7 +37,13 @@ class OrderDetailsPage extends StatelessWidget {
                                   ),
                                   SizedBox(width: 10),
                                   Expanded(
-                                    child: Text("Nestle Nido Full Cream Milk Powder Instant", style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
+                                    child: Text(
+                                        "Nestle Nido Full Cream Milk Powder Instant",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyLarge
+                                            ?.copyWith(
+                                                fontWeight: FontWeight.w600)),
                                   ),
                                   SizedBox(width: 10),
                                   Text("Rs 290")
@@ -50,17 +57,19 @@ class OrderDetailsPage extends StatelessWidget {
                     deliveryLocation(context),
                     SizedBox(height: kdPadding),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: kdPadding),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: kdPadding),
                       child: Column(
                         children: [
                           _buildDeliveryChargesInfo("Sub Total", "Rs 362"),
                           _buildDeliveryChargesInfo("Commission", "Rs 362"),
-                          _buildDeliveryChargesInfo("Total Payable", "Rs 362", true),
+                          _buildDeliveryChargesInfo(
+                              "Total Payable", "Rs 362", true),
                         ],
                       ),
                     ),
-                    SizedBox(height: kdPadding),
-                    _buildPaymentMethodSection(context),
+                    // SizedBox(height: kdPadding),
+                    // _buildPaymentMethodSection(context),
                     SizedBox(height: kdPadding),
                     _buildDeliveryManInfo(context),
                     SizedBox(height: kdPadding * 3),
@@ -83,7 +92,10 @@ class OrderDetailsPage extends StatelessWidget {
         children: [
           Text(
             "Delivery Man",
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+            style: Theme.of(context)
+                .textTheme
+                .bodyLarge
+                ?.copyWith(fontWeight: FontWeight.w500),
           ),
           ListTile(
             contentPadding: EdgeInsets.all(0),
@@ -114,8 +126,10 @@ class OrderDetailsPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: kdPadding, vertical: 10),
-          child: Text("Payment Method", style: Theme.of(context).textTheme.bodyLarge),
+          padding:
+              const EdgeInsets.symmetric(horizontal: kdPadding, vertical: 10),
+          child: Text("Payment Method",
+              style: Theme.of(context).textTheme.bodyLarge),
         ),
         _buildPaymentMethodOption(
           context: context,
@@ -136,17 +150,25 @@ class OrderDetailsPage extends StatelessWidget {
     );
   }
 
-  Container _buildPaymentMethodOption({required BuildContext context, required String title, bool isSelected = false}) {
+  Container _buildPaymentMethodOption(
+      {required BuildContext context,
+      required String title,
+      bool isSelected = false}) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: kdPadding),
-      decoration: BoxDecoration(color: Colors.grey[350], borderRadius: BorderRadius.circular(kdBorderRadius)),
+      decoration: BoxDecoration(
+          color: Colors.grey[350],
+          borderRadius: BorderRadius.circular(kdBorderRadius)),
       child: ListTile(
         leading: Icon(
           isSelected ? Icons.check_circle : Icons.circle_outlined,
           color: isSelected ? kcSecondaryColor : null,
         ),
         minLeadingWidth: 10,
-        title: Text(title, style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500, color: isSelected ? kcSecondaryColor : Colors.black)),
+        title: Text(title,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w500,
+                color: isSelected ? kcSecondaryColor : Colors.black)),
       ),
     );
   }
@@ -177,7 +199,11 @@ class OrderDetailsPage extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: kdPadding),
-          child: Text("Delivery Location", style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500)),
+          child: Text("Delivery Location",
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(fontWeight: FontWeight.w500)),
         ),
         SizedBox(height: kdPadding),
         ListTile(
@@ -187,7 +213,11 @@ class OrderDetailsPage extends StatelessWidget {
               color: Colors.black,
             ),
           ),
-          title: Text("Floor 4, Wakli Tower, to 131 Gulshan Faiz Link Road", style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black, fontWeight: FontWeight.w400)),
+          title: Text("Floor 4, Wakli Tower, to 131 Gulshan Faiz Link Road",
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: Colors.black, fontWeight: FontWeight.w400)),
         ),
       ],
     );

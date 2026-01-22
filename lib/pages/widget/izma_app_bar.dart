@@ -24,7 +24,11 @@ class IzmaAppBar extends StatelessWidget {
       width: double.infinity,
       child: Row(
         children: [
-          Navigator.canPop(context) ? Icon(Icons.arrow_back_rounded) : SizedBox(),
+          Navigator.canPop(context)
+              ? GestureDetector(
+                  onTap: () => Get.back(),
+                  child: Icon(Icons.arrow_back_rounded))
+              : SizedBox(),
           SizedBox(width: 15.w),
           Expanded(
             child: Text(

@@ -1,61 +1,155 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_utils/get_utils.dart';
-import 'package:intl_phone_field/country_picker_dialog.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
-import '../../config/theme.dart';
-import 'location_picker_page.dart';
-import '../widget/izma_radial_gradient_container.dart';
+import 'package:izma_foods_vendor/controllers/auth_controller.dart';
+import 'package:izma_foods_vendor/helpers/global_helpers.dart';
+import 'package:izma_foods_vendor/pages/auth/register_page.dart';
 
+import '../../config/theme.dart';
 import '../widget/izma_phone_field.dart';
 import '../widget/izma_primary_button.dart';
+import '../widget/izma_radial_gradient_container.dart';
 import '../widget/izma_text_field.dart';
+import 'location_picker_page.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
 
-  final RxBool shouldShowPassword = false.obs;
+  final AuthController _authController = Get.put(AuthController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: IzmaRadialGradientContainer(
         child: SafeArea(
-          child: ListView(
-            physics: BouncingScrollPhysics(),
-            padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.14),
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            children: [
-              Image.asset('assets/images/phone_mockup.png', height: 300.h),
-              SizedBox(height: 20.h),
-              doNotHaveAnAccount(context),
-              SizedBox(height: 30.h),
-              IzmaPhoneField(),
-              Obx(
-                () => IzmaTextField(
-                  prefixIcon: Icons.lock_outline_rounded,
-                  hintText: "Password",
-                  suffixIcon: GestureDetector(
-                    onTap: () => shouldShowPassword(!shouldShowPassword.value),
-                    child: Icon(shouldShowPassword.value ? Icons.remove_red_eye_outlined : Icons.visibility_off_outlined, size: 20),
-                  ),
-                  obscureText: shouldShowPassword.value,
+          child: Form(
+            key: _authController.form,
+            child: ListView(
+              physics: BouncingScrollPhysics(),
+              padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).size.height * 0.05),
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              children: [
+                Image.asset('assets/images/phone_mockup.png', height: 300.h),
+                SizedBox(height: 20.h),
+                doNotHaveAnAccount(context),
+                SizedBox(height: 30.h),
+                IzmaTextField(
+                  prefixIcon: Icons.account_circle_outlined,
+                  hintText: "Email or Phone Number",
+                  controller: _authController.userEditingController,
+                  focusNode: _authController.userFocus,
+                  nextFocusNode: _authController.passwordFocus,
+                  validator: (value) => value == null || value.length == 0
+                      ? "Please enter your phone number."
+                      : null,
                 ),
-              ),
-              // SizedBox(height: 100.h),
-              IzmaPrimaryButton(
-                title: "Login",
-                // onTap: () => Get.offAll(() => MainPage()),
-              )
-            ],
+                Obx(
+                  () => IzmaTextField(
+                    hintText: "Password",
+                    controller: _authController.passwordEditingController,
+                    focusNode: _authController.passwordFocus,
+                    validator: (value) => value == null || value.length == 0
+                        ? 'Please enter your password.'
+                        : null,
+                    prefixIcon: Icons.lock_outline_rounded,
+                    suffixIcon: GestureDetector(
+                      onTap: () => _authController.shouldShowPassword(
+                          !_authController.shouldShowPassword.value),
+                      child: Icon(
+                          _authController.shouldShowPassword.value
+                              ? Icons.remove_red_eye_outlined
+                              : Icons.visibility_off_outlined,
+                          size: 20),
+                    ),
+                    obscureText: _authController.shouldShowPassword.value,
+                  ),
+                ),
+                Obx(() {
+                  return _authController.isLoading.value
+                      ? getLoading()
+                      : IzmaPrimaryButton(
+                          title: "Login",
+                          onTap: () {
+                            if (_authController.form.currentState!.validate()) {
+                              // _authController.login(
+                              //     emailOrPhoneNumber:
+                              //         _authController.userEditingController.text,
+                              //     password: _authController.passwordEditingController.text);
+                            }
+                          },
+                        );
+                }),
+
+                /*  SizedBox(height: 10.h),
+                Text(
+                  "Or continue with?",
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+                SizedBox(height: 10.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () => _authController.loginWithGoogle(),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(100),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withValues(alpha: 0.4),
+                              blurRadius: 10,
+                              offset: Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(100),
+                          child: Image.asset('assets/icons/google.jpg',
+                              width: 30.w, height: 30.h, fit: BoxFit.cover),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 15.w),
+                    GestureDetector(
+                      onTap: () => _authController.loginWithFacebook(),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(100),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withValues(alpha: 0.4),
+                              blurRadius: 10,
+                              offset: Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(100),
+                          child: Image.asset('assets/icons/fb.png',
+                              width: 30.w, height: 30.h, fit: BoxFit.cover),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+             */
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget doNotHaveAnAccount(BuildContext context) {
+   Widget doNotHaveAnAccount(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: kdPadding),
       child: Column(
@@ -68,15 +162,19 @@ class LoginPage extends StatelessWidget {
             children: [
               Text(
                 "Don't Have Account?",
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.normal, fontSize: 12),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyLarge
+                    ?.copyWith(fontWeight: FontWeight.normal, fontSize: 12),
               ),
               GestureDetector(
-                onTap: () => Get.to(() => LocationPickerPage()),
+                onTap: () => Get.to(() => RegisterPage()),
                 child: Text(
-                  ' Click Here',
+                  ' Signup',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
-                        fontSize: 12,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
                       ),
                 ),
               ),
@@ -86,4 +184,5 @@ class LoginPage extends StatelessWidget {
       ),
     );
   }
+
 }

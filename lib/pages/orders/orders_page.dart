@@ -23,10 +23,10 @@ class OrdersPage extends StatelessWidget {
                 "New Order",
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
-              Text(
-                "Slide left ot check order status",
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
+              // Text(
+              //   "Slide left ot check order status",
+              //   style: Theme.of(context).textTheme.bodySmall,
+              // ),
               Expanded(
                 child: ListView.separated(
                   itemCount: 20,
@@ -35,7 +35,8 @@ class OrdersPage extends StatelessWidget {
                   itemBuilder: (context, index) {
                     return _buildOrderItem(index, context);
                   },
-                  separatorBuilder: (context, index) => SizedBox(height: kdPadding),
+                  separatorBuilder: (context, index) =>
+                      SizedBox(height: kdPadding),
                 ),
               ),
             ],
@@ -54,7 +55,10 @@ class OrdersPage extends StatelessWidget {
           color: kcPrimaryColor,
           borderRadius: BorderRadius.circular(kdBorderRadius),
           boxShadow: [
-            BoxShadow(offset: Offset(0, 2), color: Colors.black.withOpacity(0.4), blurRadius: 3),
+            BoxShadow(
+                offset: Offset(0, 2),
+                color: Colors.black.withOpacity(0.4),
+                blurRadius: 3),
           ],
         ),
         child: Row(
@@ -70,7 +74,9 @@ class OrdersPage extends StatelessWidget {
                           color: kcSecondaryColor,
                         ),
                   ),
-                  Text("Muneeb Ahmed", style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black, fontWeight: FontWeight.w600)),
+                  Text("Muneeb Ahmed",
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.black, fontWeight: FontWeight.w600)),
                   SizedBox(height: 10),
                   Text("H#22 Model Town, Multan"),
                 ],
@@ -88,7 +94,11 @@ class OrdersPage extends StatelessWidget {
                     color: kcSecondaryColor,
                     borderRadius: BorderRadius.circular(kdBorderRadius),
                   ),
-                  child: Text("Accept", style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: kcPrimaryColor)),
+                  child: Text("View Details",
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(color: kcPrimaryColor)),
                 )
               ],
             )

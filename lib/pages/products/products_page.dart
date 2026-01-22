@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:izma_foods_vendor/config/theme.dart';
+import 'package:izma_foods_vendor/pages/products/add_new_product.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_app_bar.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_radial_gradient_container.dart';
 
@@ -18,14 +20,17 @@ class ProductsPage extends StatelessWidget {
               actions: [
                 Padding(
                   padding: const EdgeInsets.only(top: 10, bottom: 10),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(color: kcSecondaryColor, borderRadius: BorderRadius.circular(kdBorderRadius)),
-                    child: Text(
-                      "Add New",
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: kcPrimaryColor,
-                          ),
+                  child: GestureDetector(
+                    onTap: () => Get.to(() => AddNewProductPage()),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(color: kcSecondaryColor, borderRadius: BorderRadius.circular(kdBorderRadius)),
+                      child: Text(
+                        "Add New",
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: kcPrimaryColor,
+                            ),
+                      ),
                     ),
                   ),
                 ),

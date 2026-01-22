@@ -27,21 +27,28 @@ class RegisterPageOne extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: kdPadding * 3),
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(left: kdPadding, bottom: kdPadding),
+                      padding: const EdgeInsets.only(
+                          left: kdPadding, bottom: kdPadding),
                       child: Text(
                         "Please fill in your personal information",
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w400),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(fontWeight: FontWeight.w400),
                       ),
                     ),
                     IzmaPhoneField(),
-                    IzmaTextField(prefixIcon: Icons.account_circle_outlined, hintText: "Full Name"),
+                    IzmaTextField(
+                        prefixIcon: Icons.account_circle_outlined,
+                        hintText: "Full Name"),
                     IzmaTextField(
                       prefixIcon: Icons.account_circle_outlined,
                       hintText: "Date Of Birth",
                       suffixIcon: Icon(Icons.keyboard_arrow_down),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: kdPadding),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: kdPadding),
                       child: Row(
                         children: [
                           _buildGenderOption("Male", false),
@@ -51,17 +58,14 @@ class RegisterPageOne extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: kdPadding + 8),
-                    IzmaTextField(prefixIcon: Icons.location_on_outlined, hintText: "Address"),
-                    Center(child: Text("Upload your Photo By Holding CNIC Card")),
+                    IzmaTextField(
+                        prefixIcon: Icons.location_on_outlined,
+                        hintText: "Address"),
+                    Center(
+                        child: Text("Upload your Photo By Holding CNIC Card")),
                     SizedBox(height: kdPadding),
                     IzmaFileInput(
                       title: "Upload Your Selfie",
-                    ),
-                    IzmaFileInput(
-                      title: "Upload CNIC Front",
-                    ),
-                    IzmaFileInput(
-                      title: "Upload CNIC Back",
                     ),
                     SizedBox(height: kdPadding),
                     IzmaPrimaryButton(

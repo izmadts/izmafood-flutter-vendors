@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:izma_foods_vendor/config/theme.dart';
+import 'package:izma_foods_vendor/pages/auth/hurray_page.dart';
 import 'package:izma_foods_vendor/pages/main_page.dart';
-import 'package:izma_foods_vendor/pages/orders/orders_page.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_app_bar.dart';
-import 'package:izma_foods_vendor/pages/widget/izma_phone_field.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_primary_button.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_radial_gradient_container.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_text_field.dart';
@@ -28,20 +27,25 @@ class RegisterPageTwo extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: kdPadding * 3),
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(left: kdPadding, bottom: kdPadding),
+                      padding: const EdgeInsets.only(
+                          left: kdPadding, bottom: kdPadding),
                       child: Text(
                         "Please fill in your Business Information",
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w400),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(fontWeight: FontWeight.w400),
                       ),
                     ),
-                    IzmaTextField(prefixIcon: Icons.home_outlined, hintText: "Shop Name"),
+                    IzmaTextField(
+                        prefixIcon: Icons.home_outlined, hintText: "Shop Name"),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: kdPadding),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: kdPadding),
                       child: Row(
                         children: [
                           Expanded(
                             child: IzmaTextField(
-                              disablePadding: true,
                               prefixIcon: Icons.account_circle_outlined,
                               hintText: "Type",
                               suffixIcon: Icon(Icons.keyboard_arrow_down),
@@ -50,7 +54,6 @@ class RegisterPageTwo extends StatelessWidget {
                           SizedBox(width: 10),
                           Expanded(
                             child: IzmaTextField(
-                              disablePadding: true,
                               prefixIcon: Icons.account_circle_outlined,
                               hintText: "Category",
                               suffixIcon: Icon(Icons.keyboard_arrow_down),
@@ -68,6 +71,12 @@ class RegisterPageTwo extends StatelessWidget {
                     IzmaFileInput(
                       title: "Business License",
                     ),
+                    IzmaFileInput(
+                      title: "Upload CNIC Front",
+                    ),
+                    IzmaFileInput(
+                      title: "Upload CNIC Back",
+                    ),
                     IzmaTextField(
                       prefixIcon: Icons.today,
                       hintText: "Select Bank",
@@ -84,7 +93,7 @@ class RegisterPageTwo extends StatelessWidget {
                     SizedBox(height: kdPadding),
                     IzmaPrimaryButton(
                       title: "Submit",
-                      onTap: () => Get.to(() => MainPage()),
+                      onTap: () => Get.to(() => HurrayPage()),
                     )
                   ],
                 ),
