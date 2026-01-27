@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:izma_foods_vendor/config/theme.dart';
 import 'package:izma_foods_vendor/pages/auth/hurray_page.dart';
-import 'package:izma_foods_vendor/pages/main_page.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_app_bar.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_primary_button.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_radial_gradient_container.dart';
@@ -12,6 +11,70 @@ import '../widget/izma_file_input.dart';
 
 class RegisterPageTwo extends StatelessWidget {
   const RegisterPageTwo({super.key});
+
+  Future<bool?> _askHasNtnDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('NTN Number'),
+        content: const Text('Do you have the NTN number?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('No'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(backgroundColor: kcSecondaryColor),
+            child: const Text(
+              'Yes',
+              style: TextStyle(color: kcPrimaryColor),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<bool?> _uploadNtnImageDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        contentPadding: EdgeInsets.zero,
+        titlePadding: EdgeInsets.all(kdPadding),
+        title: const Text('Upload NTN Image'),
+        content: const IzmaFileInput(title: 'Upload NTN Image'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(backgroundColor: kcSecondaryColor),
+            child: const Text(
+              'Continue',
+              style: TextStyle(color: kcPrimaryColor),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _handleSubmit(BuildContext context) async {
+    final hasNtn = await _askHasNtnDialog(context);
+    if (hasNtn == null) return;
+
+    if (hasNtn) {
+      final uploaded = await _uploadNtnImageDialog(context);
+      if (uploaded != true) return;
+    }
+
+    Get.to(() => const HurrayPage());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,9 +131,9 @@ class RegisterPageTwo extends StatelessWidget {
                     IzmaFileInput(
                       title: "Shop Banner",
                     ),
-                    IzmaFileInput(
-                      title: "Business License",
-                    ),
+                    // IzmaFileInput(
+                    //   title: "Business License",
+                    // ),
                     IzmaFileInput(
                       title: "Upload CNIC Front",
                     ),
@@ -93,37 +156,13 @@ class RegisterPageTwo extends StatelessWidget {
                     SizedBox(height: kdPadding),
                     IzmaPrimaryButton(
                       title: "Submit",
-                      onTap: () => Get.to(() => HurrayPage()),
+                      onTap: () => _handleSubmit(context),
                     )
                   ],
                 ),
               )
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Expanded _buildGenderOption(String title, bool value) {
-    return Expanded(
-      child: Container(
-        padding: EdgeInsets.all(13),
-        decoration: BoxDecoration(
-          color: kcGreyColor,
-          borderRadius: BorderRadius.circular(kdBorderRadius),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              value ? Icons.check_circle : Icons.circle_outlined,
-              color: value ? kcSecondaryColor : null,
-            ),
-            SizedBox(
-              width: 10,
-            ),
-            Text(title)
-          ],
         ),
       ),
     );
