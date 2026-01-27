@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:izma_foods_vendor/config/theme.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_app_bar.dart';
@@ -33,7 +34,7 @@ class HurrayPage extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         // Placeholder image – replace with your thumb image later
-                        // e.g. Image.asset('assets/images/your_thumb.png')
+                        SvgPicture.asset('assets/images/thumbs_up.svg'),
                         SizedBox(height: 40.h),
                         Text(
                           'Hurrrrrray!',
