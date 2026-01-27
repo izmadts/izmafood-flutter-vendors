@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:izma_foods_vendor/pages/auth/login_page.dart';
-import 'package:izma_foods_vendor/pages/auth/register_page_one.dart';
 
 import 'widget/izma_radial_gradient_container.dart';
 

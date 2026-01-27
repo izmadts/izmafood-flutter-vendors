@@ -1,8 +1,6 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../config/theme.dart';
 
+import '../../config/theme.dart';
 import 'izma_product_item.dart';
 
 class IzmaProductsView extends StatelessWidget {
