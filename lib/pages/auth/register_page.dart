@@ -26,8 +26,7 @@ class RegisterPage extends StatelessWidget {
       TextEditingController();
   final TextEditingController _passwordConfirmationEditingController =
       TextEditingController();
-  final RxString _selectedRole = 'Customer'.obs;
-
+  final RxString _selectedRole = 'Seller'.obs;
 
   final GlobalKey<FormState> _form = GlobalKey();
   @override
@@ -189,11 +188,13 @@ class RegisterPage extends StatelessWidget {
                 //     ],
                 //   ),
                 // ),
+                selectType('Seller', context),
+                SizedBox(height: 10.h),
                 selectType('Customer', context),
                 SizedBox(height: 10.h),
                 selectType('Rider', context),
                 SizedBox(height: 10.h),
-                selectType('Seller', context),
+
                 SizedBox(height: 15.h),
                 Visibility(
                   visible: _authController.registerModel.value?.role
@@ -201,7 +202,7 @@ class RegisterPage extends StatelessWidget {
                           null &&
                       _authController.registerModel.value?.role
                               ?.toLowerCase() !=
-                          'customer',
+                          'seller',
                   child: Center(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

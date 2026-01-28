@@ -6,7 +6,10 @@ import '../../config/theme.dart';
 class IzmaPhoneField extends StatelessWidget {
   const IzmaPhoneField({
     super.key,
+    required this.controller,
   });
+
+  final TextEditingController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +18,7 @@ class IzmaPhoneField extends StatelessWidget {
       height: 75,
       padding: EdgeInsets.symmetric(horizontal: kdPadding),
       child: IntlPhoneField(
+        controller: controller,
         disableLengthCheck: true,
         flagsButtonMargin: EdgeInsets.symmetric(horizontal: 10),
         showDropdownIcon: false,

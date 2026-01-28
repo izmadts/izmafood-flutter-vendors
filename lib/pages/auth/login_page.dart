@@ -6,11 +6,9 @@ import 'package:izma_foods_vendor/helpers/global_helpers.dart';
 import 'package:izma_foods_vendor/pages/auth/register_page.dart';
 
 import '../../config/theme.dart';
-import '../widget/izma_phone_field.dart';
 import '../widget/izma_primary_button.dart';
 import '../widget/izma_radial_gradient_container.dart';
 import '../widget/izma_text_field.dart';
-import 'location_picker_page.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
@@ -65,82 +63,26 @@ class LoginPage extends StatelessWidget {
                     obscureText: _authController.shouldShowPassword.value,
                   ),
                 ),
-                Obx(() {
-                  return _authController.isLoading.value
-                      ? getLoading()
-                      : IzmaPrimaryButton(
-                          title: "Login",
-                          onTap: () {
-                            if (_authController.form.currentState!.validate()) {
-                              // _authController.login(
-                              //     emailOrPhoneNumber:
-                              //         _authController.userEditingController.text,
-                              //     password: _authController.passwordEditingController.text);
-                            }
-                          },
-                        );
-                }),
-
-                /*  SizedBox(height: 10.h),
-                Text(
-                  "Or continue with?",
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.secondary,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                      ),
+                Obx(
+                  () {
+                    return _authController.isLoading.value
+                        ? getLoading()
+                        : IzmaPrimaryButton(
+                            title: "Login",
+                            onTap: () {
+                              if (_authController.form.currentState!
+                                  .validate()) {
+                                _authController.login(
+                                  emailOrPhoneNumber: _authController
+                                      .userEditingController.text,
+                                  password: _authController
+                                      .passwordEditingController.text,
+                                );
+                              }
+                            },
+                          );
+                  },
                 ),
-                SizedBox(height: 10.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: () => _authController.loginWithGoogle(),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(100),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withValues(alpha: 0.4),
-                              blurRadius: 10,
-                              offset: Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(100),
-                          child: Image.asset('assets/icons/google.jpg',
-                              width: 30.w, height: 30.h, fit: BoxFit.cover),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 15.w),
-                    GestureDetector(
-                      onTap: () => _authController.loginWithFacebook(),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(100),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withValues(alpha: 0.4),
-                              blurRadius: 10,
-                              offset: Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(100),
-                          child: Image.asset('assets/icons/fb.png',
-                              width: 30.w, height: 30.h, fit: BoxFit.cover),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-             */
               ],
             ),
           ),
@@ -149,7 +91,7 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-   Widget doNotHaveAnAccount(BuildContext context) {
+  Widget doNotHaveAnAccount(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: kdPadding),
       child: Column(
@@ -184,5 +126,4 @@ class LoginPage extends StatelessWidget {
       ),
     );
   }
-
 }

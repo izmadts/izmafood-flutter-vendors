@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:get/get.dart' hide Response;
+import 'package:get/get.dart' hide Response, FormData;
 import 'package:get_storage/get_storage.dart';
 import 'package:izma_foods_vendor/config/api_constants.dart';
 import 'package:izma_foods_vendor/config/string_constants.dart';
@@ -20,11 +20,15 @@ enum Method { POST, GET, PUT, DELETE, PATCH }
 class APIHelper {
   static late Dio _dio;
 
-  static header({String? token}) {
+  static header({String? token, bool isFormData = false}) {
     final headers = {
       "Accept": "application/json",
-      "Content-Type": "application/x-www-form-urlencoded",
     };
+
+    // Only set Content-Type if not FormData (Dio will set it automatically for FormData)
+    if (!isFormData) {
+      headers["Content-Type"] = "application/x-www-form-urlencoded";
+    }
 
     if (token != null) {
       headers["Authorization"] = "Bearer $token";
@@ -175,19 +179,20 @@ class APIHelper {
       Map<String, dynamic> data, String baseUrl,
       {Function(int?, int?)? onProgressSend}) async {
     final token = data['token'] ?? "";
+    final params = data['params'];
+    final isFormData = params is FormData;
 
     Dio dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,
         connectTimeout: const Duration(seconds: 60),
         receiveTimeout: const Duration(seconds: 60),
-        headers: header(token: token),
+        headers: header(token: token, isFormData: isFormData),
       ),
     );
 
     final url = data['url'];
     final method = data['method'];
-    final params = data['params'];
 
     try {
       Response response;

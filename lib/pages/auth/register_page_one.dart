@@ -1,6 +1,10 @@
+// ignore: unused_import
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:izma_foods_vendor/config/theme.dart';
+import 'package:izma_foods_vendor/controllers/auth_controller.dart';
 import 'package:izma_foods_vendor/pages/auth/register_page_two.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_app_bar.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_phone_field.dart';
@@ -8,13 +12,13 @@ import 'package:izma_foods_vendor/pages/widget/izma_primary_button.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_radial_gradient_container.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_text_field.dart';
 
-import '../widget/izma_file_input.dart';
-
 class RegisterPageOne extends StatelessWidget {
   const RegisterPageOne({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<AuthController>();
+
     return Scaffold(
       body: IzmaRadialGradientContainer(
         child: SafeArea(
@@ -37,40 +41,73 @@ class RegisterPageOne extends StatelessWidget {
                             ?.copyWith(fontWeight: FontWeight.w400),
                       ),
                     ),
-                    IzmaPhoneField(),
-                    IzmaTextField(
-                        prefixIcon: Icons.account_circle_outlined,
-                        hintText: "Full Name"),
-                    IzmaTextField(
-                      prefixIcon: Icons.account_circle_outlined,
-                      hintText: "Date Of Birth",
-                      suffixIcon: Icon(Icons.keyboard_arrow_down),
+                    IzmaPhoneField(
+                      controller: controller.phoneController,
                     ),
+                    IzmaTextField(
+                      controller: controller.fullNameController,
+                      prefixIcon: Icons.account_circle_outlined,
+                      hintText: "Full Name",
+                    ),
+                    Obx(
+                      () => GestureDetector(
+                        onTap: () async => await controller.selectDateOfBirth(),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10, vertical: kdPadding),
+                          margin: EdgeInsets.symmetric(horizontal: kdPadding),
+                          decoration: BoxDecoration(
+                            color: kcGreyColor,
+                            borderRadius: BorderRadius.circular(kdBorderRadius),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.calendar_month_outlined),
+                              SizedBox(width: 10),
+                              (controller.dateOfBirth.value.isEmpty ||
+                                          controller.dateOfBirth.value == '') ==
+                                      true
+                                  ? Text("Date Of Birth")
+                                  : Text(controller.dateOfBirth.value),
+                              Spacer(),
+                              Icon(Icons.keyboard_arrow_down),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: kdPadding),
                     Padding(
                       padding:
                           const EdgeInsets.symmetric(horizontal: kdPadding),
                       child: Row(
                         children: [
-                          _buildGenderOption("Male", false),
+                          Obx(() => _buildGenderOption(
+                              "Male",
+                              controller.selectedGender.value == "Male",
+                              controller)),
                           SizedBox(width: kdPadding),
-                          _buildGenderOption("Female", true),
+                          Obx(() => _buildGenderOption(
+                              "Female",
+                              controller.selectedGender.value == "Female",
+                              controller)),
                         ],
                       ),
                     ),
                     SizedBox(height: kdPadding + 8),
                     IzmaTextField(
-                        prefixIcon: Icons.location_on_outlined,
-                        hintText: "Address"),
+                      controller: controller.addressController,
+                      prefixIcon: Icons.location_on_outlined,
+                      hintText: "Address",
+                    ),
                     Center(
                         child: Text("Upload your Photo By Holding CNIC Card")),
                     SizedBox(height: kdPadding),
-                    IzmaFileInput(
-                      title: "Upload Your Selfie",
-                    ),
+                    Obx(() => _buildImageUploadContainer(controller)),
                     SizedBox(height: kdPadding),
                     IzmaPrimaryButton(
                       title: "Next",
-                      onTap: () => Get.to(() => RegisterPageTwo()),
+                      onTap: () => controller.registerPageOne(),
                     )
                   ],
                 ),
@@ -82,25 +119,142 @@ class RegisterPageOne extends StatelessWidget {
     );
   }
 
-  Expanded _buildGenderOption(String title, bool value) {
+  // Future<void> _selectDate(
+  //     BuildContext context, RegisterPageOneController controller) async {
+  //   final DateTime? picked = await showDatePicker(
+  //     context: context,
+  //     initialDate: controller.selectedDateOfBirth.value ?? DateTime.now(),
+  //     firstDate: DateTime(1900),
+  //     lastDate: DateTime.now(),
+  //     builder: (context, child) {
+  //       return Theme(
+  //         data: Theme.of(context).copyWith(
+  //           colorScheme: ColorScheme.light(
+  //             primary: kcSecondaryColor,
+  //             onPrimary: kcPrimaryColor,
+  //             onSurface: Colors.black,
+  //           ),
+  //         ),
+  //         child: child!,
+  //       );
+  //     },
+  //   );
+
+  //   if (picked != null) {
+  //     controller.setDateOfBirth(picked);
+  //     controller.dateOfBirthController.text =
+  //         DateFormat('yyyy-MM-dd').format(picked);
+  //   }
+  // }
+
+  Widget _buildGenderOption(
+      String title, bool isSelected, AuthController controller) {
     return Expanded(
-      child: Container(
-        padding: EdgeInsets.all(13),
-        decoration: BoxDecoration(
-          color: kcGreyColor,
-          borderRadius: BorderRadius.circular(kdBorderRadius),
+      child: GestureDetector(
+        onTap: () => controller.setGender(title),
+        child: Container(
+          padding: EdgeInsets.all(13),
+          decoration: BoxDecoration(
+            color: isSelected ? kcLightGreenColor : kcGreyColor,
+            borderRadius: BorderRadius.circular(kdBorderRadius),
+            border: Border.all(
+              color: isSelected ? kcSecondaryColor : Colors.transparent,
+              width: isSelected ? 2 : 0,
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                isSelected ? Icons.check_circle : Icons.circle_outlined,
+                color: isSelected ? kcSecondaryColor : null,
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Text(title)
+            ],
+          ),
         ),
-        child: Row(
-          children: [
-            Icon(
-              value ? Icons.check_circle : Icons.circle_outlined,
-              color: value ? kcSecondaryColor : null,
+      ),
+    );
+  }
+
+  Widget _buildImageUploadContainer(AuthController controller) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: kdPadding),
+      child: GestureDetector(
+        onTap: () => controller.showImageSourceDialog(),
+        child: Container(
+          height: 200,
+          decoration: BoxDecoration(
+            color: kcGreyColor,
+            borderRadius: BorderRadius.circular(kdBorderRadius),
+            border: Border.all(
+              color: controller.selectedImage.value != null
+                  ? kcSecondaryColor
+                  : Colors.transparent,
+              width: 2,
             ),
-            SizedBox(
-              width: 10,
-            ),
-            Text(title)
-          ],
+          ),
+          child: controller.selectedImage.value != null
+              ? Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(kdBorderRadius),
+                      child: Image.file(
+                        controller.selectedImage.value!,
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: GestureDetector(
+                        onTap: () => controller.clearImage(),
+                        child: Container(
+                          padding: EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.black54,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.close,
+                            color: kcPrimaryColor,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.camera_alt_outlined,
+                      size: 48,
+                      color: kcTextGreyColor,
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      "Upload Your Selfie",
+                      style:
+                          Theme.of(Get.context!).textTheme.bodyMedium?.copyWith(
+                                color: kcTextGreyColor,
+                              ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      "Tap to select from Camera or Gallery",
+                      style:
+                          Theme.of(Get.context!).textTheme.bodySmall?.copyWith(
+                                color: kcTextGreyColor,
+                              ),
+                    ),
+                  ],
+                ),
         ),
       ),
     );

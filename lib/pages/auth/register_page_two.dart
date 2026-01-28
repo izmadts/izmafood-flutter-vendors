@@ -64,12 +64,74 @@ class RegisterPageTwo extends StatelessWidget {
     );
   }
 
+  Future<bool?> _askHasBusinessRegistrationDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Business Registration'),
+        content: const Text('Do you have the Business Registration?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('No'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(backgroundColor: kcSecondaryColor),
+            child: const Text(
+              'Yes',
+              style: TextStyle(color: kcPrimaryColor),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<bool?> _uploadBusinessRegistrationImageDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        contentPadding: EdgeInsets.zero,
+        titlePadding: EdgeInsets.all(kdPadding),
+        title: const Text('Upload Business Registration Image'),
+        content: const IzmaFileInput(title: 'Upload Business Registration Image'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(backgroundColor: kcSecondaryColor),
+            child: const Text(
+              'Continue',
+              style: TextStyle(color: kcPrimaryColor),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _handleSubmit(BuildContext context) async {
+    // NTN Dialog Flow
     final hasNtn = await _askHasNtnDialog(context);
     if (hasNtn == null) return;
 
     if (hasNtn) {
       final uploaded = await _uploadNtnImageDialog(context);
+      if (uploaded != true) return;
+    }
+
+    // Business Registration Dialog Flow
+    final hasBusinessRegistration = await _askHasBusinessRegistrationDialog(context);
+    if (hasBusinessRegistration == null) return;
+
+    if (hasBusinessRegistration) {
+      final uploaded = await _uploadBusinessRegistrationImageDialog(context);
       if (uploaded != true) return;
     }
 

@@ -1,11 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:izma_foods_vendor/controllers/auth_controller.dart';
+import 'package:izma_foods_vendor/helpers/api_helper.dart';
 import 'package:izma_foods_vendor/pages/splash_page.dart';
 
 import 'config/theme.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await GetStorage.init();
+
+  // Try to load .env file, but continue if it doesn't exist
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    // .env file not found, will use fallback constants
+  }
+
+  // Initialize API helper
+  await APIHelper.init();
   runApp(const MyApp());
 }
 
@@ -18,6 +34,7 @@ class MyApp extends StatelessWidget {
     precacheImage(AssetImage('assets/images/phone_mockup.png'), context);
     precacheImage(AssetImage('assets/images/radial-background.png'), context);
     precacheImage(AssetImage('assets/images/app_logo.png'), context);
+    Get.put(AuthController());
 
     return ScreenUtilInit(
       designSize: Size(375, 812),
@@ -27,7 +44,8 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primaryColor: kcPrimaryColor,
           scaffoldBackgroundColor: Color(0xfffefeff),
-          colorScheme: ColorScheme.light(secondary: kcSecondaryColor, primaryContainer: Colors.white),
+          colorScheme: ColorScheme.light(
+              secondary: kcSecondaryColor, primaryContainer: Colors.white),
           fontFamily: 'Poppins',
           textTheme: TextTheme(
             displayLarge: TextStyle(

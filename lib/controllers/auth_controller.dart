@@ -1,32 +1,35 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide FormData, MultipartFile;
 import 'package:get_storage/get_storage.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:izma_foods_vendor/config/local_storage.dart';
 import 'package:izma_foods_vendor/helpers/api_exception.dart';
-import 'package:izma_foods_vendor/helpers/functional_constant.dart';
 import 'package:izma_foods_vendor/helpers/global_helpers.dart';
 import 'package:izma_foods_vendor/models/base_model.dart';
 import 'package:izma_foods_vendor/models/login_model.dart';
 import 'package:izma_foods_vendor/models/profile_model.dart';
 import 'package:izma_foods_vendor/models/register_model.dart';
-import 'package:izma_foods_vendor/pages/main_page.dart';
+import 'package:izma_foods_vendor/models/register_page_one_model.dart';
+import 'package:izma_foods_vendor/pages/auth/login_page.dart';
+import 'package:izma_foods_vendor/pages/auth/register_page_one.dart';
+import 'package:izma_foods_vendor/pages/auth/register_page_two.dart';
 import 'package:izma_foods_vendor/pages/splash_page.dart';
 
 import '../helpers/api_helper.dart';
 
 class AuthController extends GetxController {
+  final ImagePicker imagePicker = ImagePicker();
   final RxBool isLoading = false.obs;
   final RxBool shouldShowPassword = false.obs;
   Rx<LoginModel?> loginModel = Rx(null);
   Rx<BaseModel?> baseModel = Rx(null);
-  // Rx<RegisterModel?> registerModel = Rx(null);
   Rx<BaseModel?> updateProfileModel = Rx(null);
-  // final profileModel = Rxn<ProfileModel>();
-
-  // Google Sign In instance (singleton)
-  // final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+  final registerPageOneModel = Rxn<RegisterPageOneModel>();
   final GlobalKey<FormState> form = GlobalKey();
   final TextEditingController userEditingController = TextEditingController();
   final TextEditingController passwordEditingController =
@@ -36,13 +39,21 @@ class AuthController extends GetxController {
   final FocusNode passwordFocus = FocusNode();
   final registerModel = Rxn<RegisterModel>();
   final profileModel = Rxn<ProfileModel>();
+  final RxString dateOfBirth = ''.obs;
+  final fullNameController = TextEditingController();
+  final addressController = TextEditingController();
+  final phoneController = TextEditingController();
+
+  // Observable state
+  final selectedGender = 'Male'.obs;
+  final selectedImage = Rxn<File>();
 
   login({
     required String emailOrPhoneNumber,
     required String password,
   }) async {
-    final deviceInfo = await FunctionalConstants().getDeviceInfo();
-    print(deviceInfo['deviceID']);
+    // final deviceInfo = await FunctionalConstants().getDeviceInfo();
+    // print(deviceInfo['deviceID']);
     isLoading(true);
     try {
       final response = await APIHelper().request(
@@ -51,7 +62,7 @@ class AuthController extends GetxController {
         params: {
           'user': emailOrPhoneNumber,
           'password': password,
-          'device_id': deviceInfo['deviceID'],
+          // 'device_id': deviceInfo['deviceID'],
         },
       );
 
@@ -66,15 +77,13 @@ class AuthController extends GetxController {
       }
 
       // Persist auth info (for auto-login, etc.)
-      // await LocalStorageHelper.storageAutInfo(
-      //   email: emailOrPhoneNumber,
-      //   password: password,
-      //   token: loginModel.value?.data?.token ?? '',
-      // );
+      await LocalStorageHelper.storageAutInfo(
+        token: loginModel.value?.data?.token ?? '',
+      );
 
       // Check success message and navigate
       if (loginModel.value?.data?.massage == "Login Successfully!") {
-        Get.offAll(() => MainPage());
+        Get.offAll(() => RegisterPageOne());
       } else {
         // If message is something else, show it as feedback
         showSnackBar(loginModel.value?.data?.massage ?? 'Login failed');
@@ -86,17 +95,6 @@ class AuthController extends GetxController {
     }
   }
 
-  // Future<bool> attemptLogin() async {
-  //   Map<String, dynamic>? authData =
-  //       await LocalStorageHelper.getAuthInfoFromStorage();
-  //   if (authData != null) {
-  //     await login(
-  //         emailOrPhoneNumber: authData['user'], password: authData['password']);
-  //     return loginModel.value != null;
-  //   }
-  //   return false;
-  // }
-
   register({
     required String name,
     required String mobile,
@@ -104,9 +102,11 @@ class AuthController extends GetxController {
     required String password,
     required String role,
   }) async {
-    final deviceInfo = await FunctionalConstants().getDeviceInfo();
+    // final deviceInfo = await FunctionalConstants().getDeviceInfo();
     isLoading(true);
     try {
+      var latlong = await getCurrentLocation();
+      // print(latlong.)
       final response = await APIHelper().request(
         url: 'register',
         method: Method.POST,
@@ -116,22 +116,28 @@ class AuthController extends GetxController {
           'mobile': mobile,
           'role': role,
           'password': password,
-          'device_id': deviceInfo['deviceID'],
-          // ...Get.find<LocationController>().getLocationMap,
+          // 'device_id': deviceInfo['deviceID'],
+          'lat': latlong.latitude,
+          'lng': latlong.longitude,
         },
       );
 
       // Parse response into BaseModel (status + message)
-      // registerModel.value = RegisterModel.fromJson(response.data);
-      // if (registerModel.value?.status == true) {
-      //   showSnackBar(registerModel.value?.messege ?? 'Registration failed');
-      //   await Get.offAll(() => LoginPage());
-      // } else {
-      //   throw APIException(
-      //     message: registerModel.value?.messege ?? 'Registration failed',
-      //     statusCode: response.statusCode ?? 500,
-      //   );
-      // }
+      registerModel.value = RegisterModel.fromJson(response.data);
+      if (registerModel.value?.status == true) {
+        showSnackBar(registerModel.value?.messege ?? 'Registration failed');
+        isLoading(false);
+        // if (role == 'seller') {
+        // await Get.offAll(RegisterPageOne());
+        await Get.offAll(() => LoginPage());
+        // }
+        // await Get.offAll(() => LoginPage());
+      } else {
+        throw APIException(
+          message: registerModel.value?.messege ?? 'Registration failed',
+          statusCode: response.statusCode ?? 500,
+        );
+      }
     } catch (e) {
       handleControllerExceptions(e);
     } finally {
@@ -148,14 +154,6 @@ class AuthController extends GetxController {
 
     Get.offAll(() => SplashPage());
   }
-
-  // Future<bool> checkToken() async {
-  //   final authInfo = await LocalStorageHelper.getAuthInfoFromStorage();
-  //   if (authInfo != null) {
-  //     return true;
-  //   }
-  //   return false;
-  // }
 
   getUserProfile() async {
     isLoading(true);
@@ -273,6 +271,218 @@ class AuthController extends GetxController {
       showSnackBar(e.message);
     } catch (e) {
       print('error update profile image: ${e.toString()}');
+      handleControllerExceptions(e);
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  void setGender(String gender) {
+    selectedGender.value = gender;
+  }
+
+  Future<void> selectDateOfBirth() async {
+    // Calculate date 18 years ago
+    final DateTime eighteenYearsAgo = DateTime(
+      DateTime.now().year - 18,
+      DateTime.now().month,
+      DateTime.now().day,
+    );
+
+    final DateTime? picked = await showDatePicker(
+      context: Get.context!,
+      initialDate: eighteenYearsAgo,
+      firstDate: DateTime(1900),
+      lastDate: eighteenYearsAgo,
+    );
+    {
+      if (picked != null) {
+        dateOfBirth.value = DateFormat('yyyy-MM-dd').format(picked);
+      }
+    }
+  }
+
+  Future<void> pickImage(ImageSource source) async {
+    try {
+      final XFile? image = await imagePicker.pickImage(
+        source: source,
+        imageQuality: 80,
+        maxWidth: 1024,
+        maxHeight: 1024,
+      );
+
+      if (image != null) {
+        selectedImage.value = File(image.path);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to pick image: ${e.toString()}');
+    }
+  }
+
+  Future<void> showImageSourceDialog() async {
+    return Get.dialog(
+      AlertDialog(
+        title: const Text('Select Image Source'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Camera'),
+              onTap: () {
+                Get.back();
+                pickImage(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Gallery'),
+              onTap: () {
+                Get.back();
+                pickImage(ImageSource.gallery);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void clearImage() {
+    selectedImage.value = null;
+  }
+
+  Future<void> registerPageOne() async {
+    var token = await LocalStorageHelper.getAuthInfoFromStorage();
+    print('phone number: 0${phoneController.text.trim()}');
+    try {
+      isLoading(true);
+
+      // Create FormData for multipart/form-data upload
+      Map<String, dynamic> formDataMap = {
+        'name': fullNameController.text.trim(),
+        'mobile': "0${phoneController.text.trim()}",
+        'dob': dateOfBirth.value.trim(),
+        'gender': selectedGender.value.toLowerCase().trim(),
+      };
+
+      // Add photo as MultipartFile if image is selected
+      if (selectedImage.value != null) {
+        formDataMap['photo'] = await MultipartFile.fromFile(
+          selectedImage.value!.path,
+          filename: selectedImage.value!.path.split('/').last,
+        );
+      }
+
+      FormData formData = FormData.fromMap(formDataMap);
+
+      final response = await APIHelper().request(
+        url: 'seller/update/profile',
+        method: Method.POST,
+        params: formData,
+        token: token?['token'],
+      );
+      registerPageOneModel.value = RegisterPageOneModel.fromJson(response.data);
+      print('response register page one: ${jsonEncode(response.data)}');
+
+      if (registerPageOneModel.value?.message ==
+          'Profile Updated Successfully') {
+        showSnackBar(
+            response.data['messege'] ?? 'Profile updated successfully');
+        Get.off(() => RegisterPageTwo());
+      } else {
+        throw APIException(
+          message: response.data['messege'] ?? 'Failed to update profile',
+          statusCode: response.statusCode ?? 500,
+        );
+      }
+    } catch (e) {
+      handleControllerExceptions(e);
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  Future<void> registerPageTwo() async {
+    var token = await LocalStorageHelper.getAuthInfoFromStorage();
+    try {
+      isLoading(true);
+
+      final response = await APIHelper().request(
+        url: 'seller/shop/create',
+        method: Method.POST,
+        params: {
+          'shop_name': fullNameController.text.trim(),
+          'lat': "0${phoneController.text.trim()}",
+          'lng': dateOfBirth.value.trim(),
+          'shop_category': selectedGender.value.toLowerCase().trim(),
+          'shop_type': selectedGender.value.toLowerCase().trim(),
+        },
+        token: token?['token'],
+      );
+      registerPageOneModel.value = RegisterPageOneModel.fromJson(response.data);
+      print('response register page two: ${jsonEncode(response.data)}');
+
+      if (registerPageOneModel.value?.message ==
+          'Profile Updated Successfully') {
+        showSnackBar(
+            response.data['messege'] ?? 'Profile updated successfully');
+        Get.off(() => RegisterPageTwo());
+      } else {
+        throw APIException(
+          message: response.data['messege'] ?? 'Failed to update profile',
+          statusCode: response.statusCode ?? 500,
+        );
+      }
+    } catch (e) {
+      handleControllerExceptions(e);
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  Future<void> uploadShopImage(
+      {required String field, required String shopId}) async {
+    var token = await LocalStorageHelper.getAuthInfoFromStorage();
+    try {
+      isLoading(true);
+
+      // Create FormData for multipart/form-data upload
+      Map<String, dynamic> formDataMap = {
+        'field': field,
+        'shop_id': shopId,
+      };
+
+      // Add photo as MultipartFile if image is selected
+      if (selectedImage.value != null) {
+        formDataMap['docs'] = await MultipartFile.fromFile(
+          selectedImage.value!.path,
+          filename: selectedImage.value!.path.split('/').last,
+        );
+      }
+
+      FormData formData = FormData.fromMap(formDataMap);
+
+      final response = await APIHelper().request(
+        url: 'seller/shop/document',
+        method: Method.POST,
+        params: formData,
+        token: token?['token'],
+      );
+      registerPageOneModel.value = RegisterPageOneModel.fromJson(response.data);
+      print('response register page one: ${jsonEncode(response.data)}');
+
+      if (registerPageOneModel.value?.message ==
+          'Document Uploaded Successfully') {
+        showSnackBar(
+            response.data['messege'] ?? 'Document uploaded successfully');
+      } else {
+        throw APIException(
+          message: response.data['messege'] ?? 'Failed to upload document',
+          statusCode: response.statusCode ?? 500,
+        );
+      }
+    } catch (e) {
       handleControllerExceptions(e);
     } finally {
       isLoading(false);
