@@ -60,25 +60,26 @@ class User {
     DateTime? dob;
     String? gender;
     String? working;
-    dynamic onorder;
+    String? onorder;
     String? numorders;
     dynamic rejectedorders;
     String? photo;
-    String? lat;
-    String? lng;
+    dynamic lat;
+    dynamic lng;
     DateTime? createdAt;
     DateTime? updatedAt;
     dynamic stripeId;
     dynamic cardBrand;
     dynamic cardLastFour;
     dynamic trialEndsAt;
-    dynamic referalLink;
+    String? referalLink;
     dynamic riderActive;
     dynamic address;
     dynamic mobileVerified;
     dynamic emailVerified;
     dynamic facebookId;
     dynamic googleId;
+    dynamic shop;
 
     User({
         this.id,
@@ -111,6 +112,7 @@ class User {
         this.emailVerified,
         this.facebookId,
         this.googleId,
+        this.shop,
     });
 
     factory User.fromJson(Map<String, dynamic> json) => User(
@@ -144,6 +146,7 @@ class User {
         emailVerified: json["email_verified"],
         facebookId: json["facebook_id"],
         googleId: json["google_id"],
+        shop: json["shop"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -177,5 +180,6 @@ class User {
         "email_verified": emailVerified,
         "facebook_id": facebookId,
         "google_id": googleId,
+        "shop": shop,
     };
 }

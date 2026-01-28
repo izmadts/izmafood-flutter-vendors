@@ -12,12 +12,14 @@ import 'package:izma_foods_vendor/helpers/api_exception.dart';
 import 'package:izma_foods_vendor/helpers/global_helpers.dart';
 import 'package:izma_foods_vendor/models/base_model.dart';
 import 'package:izma_foods_vendor/models/login_model.dart';
+import 'package:izma_foods_vendor/models/main_model.dart';
 import 'package:izma_foods_vendor/models/profile_model.dart';
 import 'package:izma_foods_vendor/models/register_model.dart';
 import 'package:izma_foods_vendor/models/register_page_one_model.dart';
 import 'package:izma_foods_vendor/pages/auth/login_page.dart';
 import 'package:izma_foods_vendor/pages/auth/register_page_one.dart';
 import 'package:izma_foods_vendor/pages/auth/register_page_two.dart';
+import 'package:izma_foods_vendor/pages/main_page.dart';
 import 'package:izma_foods_vendor/pages/splash_page.dart';
 
 import '../helpers/api_helper.dart';
@@ -40,13 +42,89 @@ class AuthController extends GetxController {
   final registerModel = Rxn<RegisterModel>();
   final profileModel = Rxn<ProfileModel>();
   final RxString dateOfBirth = ''.obs;
+  // Register Page One controllers
   final fullNameController = TextEditingController();
   final addressController = TextEditingController();
   final phoneController = TextEditingController();
 
+  // Register Page Two controllers
+  final shopNameController = TextEditingController();
+  final shopTypeController = TextEditingController();
+  final shopCategoryController = TextEditingController();
+  final bankController = TextEditingController();
+  final accountTitleController = TextEditingController();
+  final accountNumberController = TextEditingController();
+
   // Observable state
   final selectedGender = 'Male'.obs;
+  // Generic selected image (used on Register Page One)
   final selectedImage = Rxn<File>();
+
+  // Register Page Two image state
+  final shopLogoFile = Rxn<File>();
+  final shopBannerFile = Rxn<File>();
+  final cnicFrontFile = Rxn<File>();
+  final cnicBackFile = Rxn<File>();
+  // list of shop types
+  final shopTypes = ['Wholesale', 'Retail'].obs;
+  // list of banks in pakistan
+  final banks = [
+    'HBL',
+    'UBL',
+    'MCB',
+    'Faysal',
+    'Askari',
+    'Housing',
+    'Standard Chartered',
+    'Sindh Bank',
+    'NBP',
+    'JS Bank',
+    'United Bank',
+    'Allied Bank',
+    'Bank of Khyber',
+    'Bank of Punjab',
+    'Bank of Sindh',
+    'Bank of Balochistan',
+    'Bank of Gilgit-Baltistan',
+    'Bank of Kashmir',
+    'Bank of Gilgit-Baltistan',
+    'Bank of Kashmir'
+  ].obs;
+
+  final selectedShopType = ''.obs;
+  final selectedBank = ''.obs;
+
+  final shopCategoriesModel = Rxn<MainModel>();
+  final selectedShopCategory = Rxn<Category>();
+
+  onInit() {
+    super.onInit();
+    getShopCategoriesModel();
+  }
+
+  getShopCategoriesModel() async {
+    isLoading(true);
+    try {
+      final response = await APIHelper().request(
+        url: 'categories',
+        method: Method.GET,
+      );
+      print('response login: ${jsonEncode(response.data)}');
+      shopCategoriesModel.value = MainModel.fromJson(response.data);
+      if (shopCategoriesModel.value?.status == true) {
+        isLoading(false);
+      } else {
+        throw APIException(
+          message: 'Failed to get shop categories',
+          statusCode: response.statusCode ?? 500,
+        );
+      }
+    } catch (e) {
+      handleControllerExceptions(e);
+    } finally {
+      isLoading(false);
+    }
+  }
 
   login({
     required String emailOrPhoneNumber,
@@ -65,11 +143,11 @@ class AuthController extends GetxController {
           // 'device_id': deviceInfo['deviceID'],
         },
       );
-
+      print('response login: ${jsonEncode(response.data)}');
       loginModel.value = LoginModel.fromJson(response.data);
       // If API still uses old error format with status == false
       if (loginModel.value != null &&
-          loginModel.value?.data?.massage != "Login Successfully!") {
+          loginModel.value?.data?.massage != "Login Successfully") {
         throw APIException(
           message: response.data['messege'] ?? 'Login failed',
           statusCode: response.statusCode ?? 500,
@@ -82,8 +160,12 @@ class AuthController extends GetxController {
       );
 
       // Check success message and navigate
-      if (loginModel.value?.data?.massage == "Login Successfully!") {
-        Get.offAll(() => RegisterPageOne());
+      if (loginModel.value?.data?.massage == "Login Successfully") {
+        if (loginModel.value?.data?.user?.shop == null) {
+          Get.offAll(() => RegisterPageOne());
+        } else {
+          Get.offAll(() => MainPage());
+        }
       } else {
         // If message is something else, show it as feedback
         showSnackBar(loginModel.value?.data?.massage ?? 'Login failed');
@@ -352,6 +434,69 @@ class AuthController extends GetxController {
     selectedImage.value = null;
   }
 
+  // Helpers for Register Page Two image picking
+  Future<void> showShopImageSourceDialog(String fieldKey) async {
+    return Get.dialog(
+      AlertDialog(
+        title: const Text('Select Image Source'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Camera'),
+              onTap: () {
+                Get.back();
+                _pickShopImage(fieldKey, ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Gallery'),
+              onTap: () {
+                Get.back();
+                _pickShopImage(fieldKey, ImageSource.gallery);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickShopImage(String fieldKey, ImageSource source) async {
+    try {
+      final XFile? image = await imagePicker.pickImage(
+        source: source,
+        imageQuality: 80,
+        maxWidth: 1024,
+        maxHeight: 1024,
+      );
+
+      if (image != null) {
+        final file = File(image.path);
+        switch (fieldKey) {
+          case 'logo':
+            shopLogoFile.value = file;
+            break;
+          case 'banner':
+            shopBannerFile.value = file;
+            break;
+          case 'cnic_front':
+            cnicFrontFile.value = file;
+            break;
+          case 'cnic_back':
+            cnicBackFile.value = file;
+            break;
+          default:
+            break;
+        }
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to pick image: ${e.toString()}');
+    }
+  }
+
   Future<void> registerPageOne() async {
     var token = await LocalStorageHelper.getAuthInfoFromStorage();
     print('phone number: 0${phoneController.text.trim()}');
@@ -424,13 +569,13 @@ class AuthController extends GetxController {
       print('response register page two: ${jsonEncode(response.data)}');
 
       if (registerPageOneModel.value?.message ==
-          'Profile Updated Successfully') {
+          'Shop Created Successfully') {
         showSnackBar(
-            response.data['messege'] ?? 'Profile updated successfully');
-        Get.off(() => RegisterPageTwo());
+            response.data['messege'] ?? 'Shop created successfully');
+        // Get.off(() => RegisterPageTwo());
       } else {
         throw APIException(
-          message: response.data['messege'] ?? 'Failed to update profile',
+          message: response.data['messege'] ?? 'Failed to create shop',
           statusCode: response.statusCode ?? 500,
         );
       }
