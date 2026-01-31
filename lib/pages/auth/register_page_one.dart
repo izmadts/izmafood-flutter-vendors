@@ -5,9 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:izma_foods_vendor/config/theme.dart';
 import 'package:izma_foods_vendor/controllers/auth_controller.dart';
-import 'package:izma_foods_vendor/pages/auth/register_page_two.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_app_bar.dart';
-import 'package:izma_foods_vendor/pages/widget/izma_phone_field.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_primary_button.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_radial_gradient_container.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_text_field.dart';
@@ -40,14 +38,6 @@ class RegisterPageOne extends StatelessWidget {
                             .bodySmall
                             ?.copyWith(fontWeight: FontWeight.w400),
                       ),
-                    ),
-                    IzmaPhoneField(
-                      controller: controller.phoneController,
-                    ),
-                    IzmaTextField(
-                      controller: controller.fullNameController,
-                      prefixIcon: Icons.account_circle_outlined,
-                      hintText: "Full Name",
                     ),
                     Obx(
                       () => GestureDetector(

@@ -43,9 +43,7 @@ class AuthController extends GetxController {
   final profileModel = Rxn<ProfileModel>();
   final RxString dateOfBirth = ''.obs;
   // Register Page One controllers
-  final fullNameController = TextEditingController();
   final addressController = TextEditingController();
-  final phoneController = TextEditingController();
 
   // Register Page Two controllers
   final shopNameController = TextEditingController();
@@ -146,10 +144,9 @@ class AuthController extends GetxController {
       print('response login: ${jsonEncode(response.data)}');
       loginModel.value = LoginModel.fromJson(response.data);
       // If API still uses old error format with status == false
-      if (loginModel.value != null &&
-          loginModel.value?.data?.massage != "Login Successfully") {
+      if (loginModel.value != null && loginModel.value?.status == false) {
         throw APIException(
-          message: response.data['messege'] ?? 'Login failed',
+          message: loginModel.value?.data?.massage ?? 'Login failed',
           statusCode: response.statusCode ?? 500,
         );
       }
@@ -160,7 +157,7 @@ class AuthController extends GetxController {
       );
 
       // Check success message and navigate
-      if (loginModel.value?.data?.massage == "Login Successfully") {
+      if (loginModel.value?.status == true) {
         if (loginModel.value?.data?.user?.shop == null) {
           Get.offAll(() => RegisterPageOne());
         } else {
@@ -168,7 +165,7 @@ class AuthController extends GetxController {
         }
       } else {
         // If message is something else, show it as feedback
-        showSnackBar(loginModel.value?.data?.massage ?? 'Login failed');
+        showSnackBar('Login failed');
       }
     } catch (e) {
       handleControllerExceptions(e);
@@ -499,14 +496,11 @@ class AuthController extends GetxController {
 
   Future<void> registerPageOne() async {
     var token = await LocalStorageHelper.getAuthInfoFromStorage();
-    print('phone number: 0${phoneController.text.trim()}');
     try {
       isLoading(true);
 
       // Create FormData for multipart/form-data upload
       Map<String, dynamic> formDataMap = {
-        'name': fullNameController.text.trim(),
-        'mobile': "0${phoneController.text.trim()}",
         'dob': dateOfBirth.value.trim(),
         'gender': selectedGender.value.toLowerCase().trim(),
       };
@@ -557,8 +551,6 @@ class AuthController extends GetxController {
         url: 'seller/shop/create',
         method: Method.POST,
         params: {
-          'shop_name': fullNameController.text.trim(),
-          'lat': "0${phoneController.text.trim()}",
           'lng': dateOfBirth.value.trim(),
           'shop_category': selectedGender.value.toLowerCase().trim(),
           'shop_type': selectedGender.value.toLowerCase().trim(),
@@ -568,10 +560,8 @@ class AuthController extends GetxController {
       registerPageOneModel.value = RegisterPageOneModel.fromJson(response.data);
       print('response register page two: ${jsonEncode(response.data)}');
 
-      if (registerPageOneModel.value?.message ==
-          'Shop Created Successfully') {
-        showSnackBar(
-            response.data['messege'] ?? 'Shop created successfully');
+      if (registerPageOneModel.value?.message == 'Shop Created Successfully') {
+        showSnackBar(response.data['messege'] ?? 'Shop created successfully');
         // Get.off(() => RegisterPageTwo());
       } else {
         throw APIException(
