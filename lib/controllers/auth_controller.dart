@@ -16,8 +16,10 @@ import 'package:izma_foods_vendor/models/main_model.dart';
 import 'package:izma_foods_vendor/models/profile_model.dart';
 import 'package:izma_foods_vendor/models/register_model.dart';
 import 'package:izma_foods_vendor/models/register_page_one_model.dart';
+import 'package:izma_foods_vendor/models/register_page_two_model.dart';
 import 'package:izma_foods_vendor/pages/auth/login_page.dart';
 import 'package:izma_foods_vendor/pages/auth/register_page_one.dart';
+import 'package:izma_foods_vendor/pages/auth/register_page_three.dart';
 import 'package:izma_foods_vendor/pages/auth/register_page_two.dart';
 import 'package:izma_foods_vendor/pages/main_page.dart';
 import 'package:izma_foods_vendor/pages/splash_page.dart';
@@ -32,6 +34,7 @@ class AuthController extends GetxController {
   Rx<BaseModel?> baseModel = Rx(null);
   Rx<BaseModel?> updateProfileModel = Rx(null);
   final registerPageOneModel = Rxn<RegisterPageOneModel>();
+  final registerPageTwoModel = Rxn<RegisterPageTwoModel>();
   final GlobalKey<FormState> form = GlobalKey();
   final TextEditingController userEditingController = TextEditingController();
   final TextEditingController passwordEditingController =
@@ -58,11 +61,13 @@ class AuthController extends GetxController {
   // Generic selected image (used on Register Page One)
   final selectedImage = Rxn<File>();
 
-  // Register Page Two image state
+  // Register Page Two / Three image state
   final shopLogoFile = Rxn<File>();
   final shopBannerFile = Rxn<File>();
   final cnicFrontFile = Rxn<File>();
   final cnicBackFile = Rxn<File>();
+  final foodCertificateFile = Rxn<File>();
+  final ntnFile = Rxn<File>();
   // list of shop types
   final shopTypes = ['Wholesale', 'Retail'].obs;
   // list of banks in pakistan
@@ -475,15 +480,51 @@ class AuthController extends GetxController {
         switch (fieldKey) {
           case 'logo':
             shopLogoFile.value = file;
+            await uploadShopImage(
+              field: fieldKey,
+              shopId: registerPageTwoModel.value?.data?.id.toString() ?? '',
+              image: file,
+            );
             break;
           case 'banner':
             shopBannerFile.value = file;
+            await uploadShopImage(
+              field: fieldKey,
+              shopId: registerPageTwoModel.value?.data?.id.toString() ?? '',
+              image: file,
+            );
             break;
-          case 'cnic_front':
+          case 'fcnic':
             cnicFrontFile.value = file;
+            await uploadShopImage(
+              field: fieldKey,
+              shopId: registerPageTwoModel.value?.data?.id.toString() ?? '',
+              image: file,
+            );
             break;
-          case 'cnic_back':
+          case 'bcnic':
             cnicBackFile.value = file;
+            await uploadShopImage(
+              field: fieldKey,
+              shopId: registerPageTwoModel.value?.data?.id.toString() ?? '',
+              image: file,
+            );
+            break;
+          case 'licence_photo':
+            foodCertificateFile.value = file;
+            await uploadShopImage(
+              field: fieldKey,
+              shopId: registerPageTwoModel.value?.data?.id.toString() ?? '',
+              image: file,
+            );
+            break;
+          case 'ntn_photo':
+            ntnFile.value = file;
+            await uploadShopImage(
+              field: fieldKey,
+              shopId: registerPageTwoModel.value?.data?.id.toString() ?? '',
+              image: file,
+            );
             break;
           default:
             break;
@@ -501,10 +542,13 @@ class AuthController extends GetxController {
 
       // Create FormData for multipart/form-data upload
       Map<String, dynamic> formDataMap = {
+        'name': loginModel.value?.data?.user?.name?.trim(),
+        'mobile': 031066690634,
+        // int.parse(loginModel.value?.data?.user?.mobile ?? '0000000000'),
         'dob': dateOfBirth.value.trim(),
         'gender': selectedGender.value.toLowerCase().trim(),
       };
-
+      print('formDataMap: ${jsonEncode(formDataMap)}');
       // Add photo as MultipartFile if image is selected
       if (selectedImage.value != null) {
         formDataMap['photo'] = await MultipartFile.fromFile(
@@ -544,6 +588,7 @@ class AuthController extends GetxController {
 
   Future<void> registerPageTwo() async {
     var token = await LocalStorageHelper.getAuthInfoFromStorage();
+    var latlong = await getCurrentLocation();
     try {
       isLoading(true);
 
@@ -551,18 +596,22 @@ class AuthController extends GetxController {
         url: 'seller/shop/create',
         method: Method.POST,
         params: {
-          'lng': dateOfBirth.value.trim(),
-          'shop_category': selectedGender.value.toLowerCase().trim(),
-          'shop_type': selectedGender.value.toLowerCase().trim(),
+          'shop_name': shopNameController.text.trim(),
+          'lat': latlong.latitude.toString(),
+          'lng': latlong.longitude.toString(),
+          'shop_category': selectedShopCategory.value?.id,
+          'shop_type': selectedShopType.value.trim(),
+          'ip': '144.48.134.188',
         },
         token: token?['token'],
       );
-      registerPageOneModel.value = RegisterPageOneModel.fromJson(response.data);
+      registerPageTwoModel.value = RegisterPageTwoModel.fromJson(response.data);
       print('response register page two: ${jsonEncode(response.data)}');
 
-      if (registerPageOneModel.value?.message == 'Shop Created Successfully') {
+      if (registerPageTwoModel.value?.success ==
+          'You Shop data has been receive for verification please wait for approval') {
         showSnackBar(response.data['messege'] ?? 'Shop created successfully');
-        // Get.off(() => RegisterPageTwo());
+        Get.to(() => const RegisterPageThree());
       } else {
         throw APIException(
           message: response.data['messege'] ?? 'Failed to create shop',
@@ -577,7 +626,9 @@ class AuthController extends GetxController {
   }
 
   Future<void> uploadShopImage(
-      {required String field, required String shopId}) async {
+      {required String field,
+      required String shopId,
+      required File image}) async {
     var token = await LocalStorageHelper.getAuthInfoFromStorage();
     try {
       isLoading(true);
@@ -588,13 +639,10 @@ class AuthController extends GetxController {
         'shop_id': shopId,
       };
 
-      // Add photo as MultipartFile if image is selected
-      if (selectedImage.value != null) {
-        formDataMap['docs'] = await MultipartFile.fromFile(
-          selectedImage.value!.path,
-          filename: selectedImage.value!.path.split('/').last,
-        );
-      }
+      formDataMap['docs'] = await MultipartFile.fromFile(
+        image.path,
+        filename: image.path.split('/').last,
+      );
 
       FormData formData = FormData.fromMap(formDataMap);
 
@@ -622,5 +670,10 @@ class AuthController extends GetxController {
     } finally {
       isLoading(false);
     }
+  }
+
+  /// Register Page Three: go to main page (call when Continue is tapped; required files already checked in UI).
+  Future<void> registerPageThree() async {
+    Get.offAll(() => MainPage());
   }
 }
