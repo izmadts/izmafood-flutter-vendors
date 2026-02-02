@@ -9,20 +9,24 @@ RegisterPageOneModel registerPageOneModelFromJson(String str) => RegisterPageOne
 String registerPageOneModelToJson(RegisterPageOneModel data) => json.encode(data.toJson());
 
 class RegisterPageOneModel {
+  bool? status;
     String? message;
     Data? data;
 
     RegisterPageOneModel({
+        this.status,
         this.message,
         this.data,
     });
 
     factory RegisterPageOneModel.fromJson(Map<String, dynamic> json) => RegisterPageOneModel(
+        status: json["status"],
         message: json["message"],
         data: json["data"] == null ? null : Data.fromJson(json["data"]),
     );
 
     Map<String, dynamic> toJson() => {
+        "status": status,
         "message": message,
         "data": data?.toJson(),
     };

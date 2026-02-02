@@ -17,6 +17,8 @@ import 'package:izma_foods_vendor/models/profile_model.dart';
 import 'package:izma_foods_vendor/models/register_model.dart';
 import 'package:izma_foods_vendor/models/register_page_one_model.dart';
 import 'package:izma_foods_vendor/models/register_page_two_model.dart';
+import 'package:izma_foods_vendor/models/shop_details_model.dart';
+import 'package:izma_foods_vendor/pages/auth/hurray_page.dart';
 import 'package:izma_foods_vendor/pages/auth/login_page.dart';
 import 'package:izma_foods_vendor/pages/auth/register_page_one.dart';
 import 'package:izma_foods_vendor/pages/auth/register_page_three.dart';
@@ -31,10 +33,11 @@ class AuthController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxBool shouldShowPassword = false.obs;
   Rx<LoginModel?> loginModel = Rx(null);
-  Rx<BaseModel?> baseModel = Rx(null);
+  final baseModel = Rxn<BaseModel>();
   Rx<BaseModel?> updateProfileModel = Rx(null);
   final registerPageOneModel = Rxn<RegisterPageOneModel>();
   final registerPageTwoModel = Rxn<RegisterPageTwoModel>();
+  final shopDetailsModel = Rxn<ShopDetailsModel>();
   final GlobalKey<FormState> form = GlobalKey();
   final TextEditingController userEditingController = TextEditingController();
   final TextEditingController passwordEditingController =
@@ -165,12 +168,14 @@ class AuthController extends GetxController {
       if (loginModel.value?.status == true) {
         if (loginModel.value?.data?.user?.shop == null) {
           Get.offAll(() => RegisterPageOne());
+        } else if (loginModel.value?.data?.user?.shop?.status == 'inactive') {
+          Get.offAll(() => HurrayPage());
         } else {
           Get.offAll(() => MainPage());
         }
       } else {
         // If message is something else, show it as feedback
-        showSnackBar('Login failed');
+        showSnackBar(loginModel.value?.data?.massage ?? 'Login failed');
       }
     } catch (e) {
       handleControllerExceptions(e);
@@ -206,7 +211,6 @@ class AuthController extends GetxController {
         },
       );
 
-      // Parse response into BaseModel (status + message)
       registerModel.value = RegisterModel.fromJson(response.data);
       if (registerModel.value?.status == true) {
         showSnackBar(registerModel.value?.messege ?? 'Registration failed');
@@ -652,11 +656,10 @@ class AuthController extends GetxController {
         params: formData,
         token: token?['token'],
       );
-      registerPageOneModel.value = RegisterPageOneModel.fromJson(response.data);
+      baseModel.value = BaseModel.fromJson(response.data);
       print('response register page one: ${jsonEncode(response.data)}');
 
-      if (registerPageOneModel.value?.message ==
-          'Document Uploaded Successfully') {
+      if (baseModel.value?.status == true) {
         showSnackBar(
             response.data['messege'] ?? 'Document uploaded successfully');
       } else {
@@ -675,5 +678,31 @@ class AuthController extends GetxController {
   /// Register Page Three: go to main page (call when Continue is tapped; required files already checked in UI).
   Future<void> registerPageThree() async {
     Get.offAll(() => MainPage());
+  }
+
+  getShopDetails() async {
+    var token = await LocalStorageHelper.getAuthInfoFromStorage();
+    try {
+      isLoading(true);
+      final response = await APIHelper().request(
+        url: 'seller/shop',
+        method: Method.GET,
+        token: token?['token'],
+      );
+      shopDetailsModel.value = ShopDetailsModel.fromJson(response.data);
+      print('response shop details: ${jsonEncode(response.data)}');
+      if (shopDetailsModel.value?.status == true) {
+        showSnackBar('Shop details fetched successfully');
+      } else {
+        throw APIException(
+          message: 'Failed to fetch shop details',
+          statusCode: response.statusCode ?? 500,
+        );
+      }
+    } catch (e) {
+      handleControllerExceptions(e);
+    } finally {
+      isLoading(false);
+    }
   }
 }

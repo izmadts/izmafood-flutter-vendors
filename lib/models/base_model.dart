@@ -10,20 +10,20 @@ String baseModelToJson(BaseModel data) => json.encode(data.toJson());
 
 class BaseModel {
   bool? status;
-  String? messege;
+  String? message;
 
   BaseModel({
     this.status,
-    this.messege,
+    this.message,
   });
 
   factory BaseModel.fromJson(Map<String, dynamic> json) => BaseModel(
         status: json["status"],
-        messege: json["messege"],
+        message: json["message"],
       );
 
   Map<String, dynamic> toJson() => {
         "status": status,
-        "messege": messege,
+        "message": message,
       };
 }
