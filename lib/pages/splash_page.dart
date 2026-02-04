@@ -4,7 +4,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:izma_foods_vendor/config/local_storage.dart';
 import 'package:izma_foods_vendor/pages/auth/login_page.dart';
+import 'package:izma_foods_vendor/pages/main_page.dart';
+import 'package:lottie/lottie.dart';
 
 import 'widget/izma_radial_gradient_container.dart';
 
@@ -21,26 +25,39 @@ class _SplashPageState extends State<SplashPage> {
 
   final MINIMUM = 0.8;
   final MAXIMUM = 1.0;
-  final duration = 800;
+  final duration = 8;
+  final getStorage = GetStorage();
 
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(Duration(milliseconds: duration), (timer) {
-      setState(() {
-        if (opacity == MINIMUM) {
-          opacity = MAXIMUM;
-        } else {
-          opacity = MINIMUM;
-        }
-      });
-    });
-    init();
+    // _timer = Timer.periodic(Duration(seconds: duration), (timer) {
+    //   setState(() {
+    //     if (opacity == MINIMUM) {
+    //       opacity = MAXIMUM;
+    //     } else {
+    //       opacity = MINIMUM;
+    //     }
+    //   });
+    // });
+
+    WidgetsBinding.instance.addPostFrameCallback(
+      (timeStamp) => init(),
+    );
+    // init();
   }
 
   init() async {
-    await Future.delayed(Duration(seconds: kDebugMode ? 0 : 5));
-    Get.offAll(() => LoginPage());
+    await Future.delayed(Duration(seconds: duration), () async {
+      var token = await LocalStorageHelper.getAuthInfoFromStorage();
+
+      if (token?['token'] == null || token?['token']?.isEmpty) {
+        Get.offAll(() => LoginPage());
+        return;
+      }
+
+      Get.offAll(() => MainPage());
+    });
   }
 
   @override
@@ -52,26 +69,19 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: IzmaRadialGradientContainer(
-        child: AnimatedOpacity(
-          duration: Duration(milliseconds: duration),
-          opacity: opacity,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Image.asset(
-                'assets/images/app_logo.png',
-                width: MediaQuery.of(context).size.width * 0.5,
-              ),
-              SizedBox(height: 10.h),
-              Text("Deliver all your Food Needs", style: Theme.of(context).textTheme.displayLarge),
-              SizedBox(height: 20),
-            ],
-          ),
-        ),
+        // backgroundColor: Colors.white,
+        body: IzmaRadialGradientContainer(
+      child: Lottie.asset(
+        'assets/splash/animation.json',
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        fit: BoxFit.contain,
+        repeat: true,
+        onLoaded: (composition) {
+          // Animation loaded successfully
+          debugPrint('Lottie animation loaded successfully');
+        },
       ),
-    );
+    ));
   }
 }

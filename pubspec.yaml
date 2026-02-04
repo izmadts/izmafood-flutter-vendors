@@ -55,6 +55,7 @@ dependencies:
   geolocator: ^14.0.2
   intl: ^0.19.0
   image_picker: ^1.2.1
+  lottie: ^3.3.2
   # timelines: ^0.1.0
 
 dev_dependencies:
@@ -82,6 +83,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
+    - assets/splash/
     - assets/images/
     - assets/icons/
     - assets/fonts/

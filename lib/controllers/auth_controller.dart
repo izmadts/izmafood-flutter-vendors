@@ -151,6 +151,7 @@ class AuthController extends GetxController {
       );
       print('response login: ${jsonEncode(response.data)}');
       loginModel.value = LoginModel.fromJson(response.data);
+      print('loginModel: ${jsonEncode(loginModel.value)}');
       // If API still uses old error format with status == false
       if (loginModel.value != null && loginModel.value?.status == false) {
         throw APIException(

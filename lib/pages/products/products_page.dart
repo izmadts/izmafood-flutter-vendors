@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:izma_foods_vendor/config/theme.dart';
+import 'package:izma_foods_vendor/controllers/product_list_controller.dart';
 import 'package:izma_foods_vendor/pages/products/add_new_product.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_app_bar.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_radial_gradient_container.dart';
 
 class ProductsPage extends StatelessWidget {
-  const ProductsPage({super.key});
-
+  ProductsPage({super.key});
+  final controller = Get.put(ProductListController());
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,8 +24,11 @@ class ProductsPage extends StatelessWidget {
                   child: GestureDetector(
                     onTap: () => Get.to(() => AddNewProductPage()),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(color: kcSecondaryColor, borderRadius: BorderRadius.circular(kdBorderRadius)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                          color: kcSecondaryColor,
+                          borderRadius: BorderRadius.circular(kdBorderRadius)),
                       child: Text(
                         "Add New",
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -49,7 +53,11 @@ class ProductsPage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(kdBorderRadius),
                     border: Border.all(color: kcTextGreyColor),
                   ),
-                  child: Text("Grocery", style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: index == 0 ? Colors.yellow : null)),
+                  child: Text("Grocery",
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(color: index == 0 ? Colors.yellow : null)),
                 ),
                 separatorBuilder: (context, index) => SizedBox(width: 10),
                 itemCount: 10,
@@ -73,7 +81,9 @@ class ProductsPage extends StatelessWidget {
                           border: Border.all(color: kcSecondaryColor),
                         ),
                         clipBehavior: Clip.antiAlias,
-                        child: Image.asset('assets/temp/product.png'),
+                        child: Image.network(controller.productListModel.value
+                                ?.data?.data?[index].photo ??
+                            ''),
                       ),
                       SizedBox(width: 4),
                       Expanded(
@@ -86,7 +96,9 @@ class ProductsPage extends StatelessWidget {
                             border: Border.all(color: kcSecondaryColor),
                           ),
                           clipBehavior: Clip.antiAlias,
-                          child: Text("Vital Teaa 458 g"),
+                          child: Text(controller.productListModel.value?.data
+                                  ?.data?[index].title ??
+                              ''),
                         ),
                       ),
                       SizedBox(width: 4),
@@ -100,7 +112,8 @@ class ProductsPage extends StatelessWidget {
                           border: Border.all(color: kcSecondaryColor),
                         ),
                         clipBehavior: Clip.antiAlias,
-                        child: Text("Rs 52.00"),
+                        child: Text(
+                            "Rs ${controller.productListModel.value?.data?.data?[index].sprice ?? 0}"),
                       ),
                       SizedBox(width: 4),
                       Container(
@@ -122,7 +135,8 @@ class ProductsPage extends StatelessWidget {
                 separatorBuilder: (context, index) => SizedBox(
                   height: 10,
                 ),
-                itemCount: 60,
+                itemCount:
+                    controller.productListModel.value?.data?.data?.length ?? 0,
               ),
             ),
           ],

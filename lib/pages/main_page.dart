@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import 'package:get/get.dart';
+import 'package:izma_foods_vendor/controllers/dash_board_controller.dart';
 import 'package:izma_foods_vendor/pages/orders/orders_page.dart';
 import 'package:izma_foods_vendor/pages/products/products_page.dart';
 
@@ -10,7 +11,7 @@ import 'more/more_page.dart';
 
 class MainPage extends StatelessWidget {
   MainPage({super.key});
-
+  final dashBoardController = Get.put(DashBoardController());
   RxList screens = RxList([
     HomePage(),
     ProductsPage(),
