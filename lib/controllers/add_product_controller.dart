@@ -1,4 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:dio/dio.dart' as dio;
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:izma_foods_vendor/config/local_storage.dart';
 import 'package:izma_foods_vendor/helpers/api_exception.dart';
 import 'package:izma_foods_vendor/helpers/api_helper.dart';
@@ -13,6 +19,8 @@ import 'package:izma_foods_vendor/models/category_model.dart';
 //     as product_list_model;
 
 class AddProductController extends GetxController {
+  final ImagePicker imagePicker = ImagePicker();
+  final productImageFile = Rxn<File>();
   final brandListModel = Rxn<BrandListModel>();
   final selectedBrand = Rxn<Datum>();
   final categoryListModel = Rxn<CategoryModel>();
@@ -26,6 +34,12 @@ class AddProductController extends GetxController {
   final selectedAttributeValueItem = Rxn<attribute_value_model.Datum>();
   final isAttributeSelected = false.obs;
   final stocksAvailable = true.obs;
+  final barCodeController = TextEditingController();
+  final productTitleController = TextEditingController();
+  final productDescriptionController = TextEditingController();
+  final salePriceController = TextEditingController();
+  final offerPriceController = TextEditingController();
+  final wholeSaleController = TextEditingController();
   onInit() {
     super.onInit();
     getBrandList();
@@ -143,6 +157,93 @@ class AddProductController extends GetxController {
       handleControllerExceptions(e);
     } finally {
       isAttributeSelected(false);
+    }
+  }
+
+  // Helpers for Register Page Two image picking
+  Future<void> showShopImageSourceDialog() async {
+    return Get.dialog(
+      AlertDialog(
+        title: const Text('Select Image Source'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Camera'),
+              onTap: () {
+                Get.back();
+                _pickShopImage(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Gallery'),
+              onTap: () {
+                Get.back();
+                _pickShopImage(ImageSource.gallery);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickShopImage(ImageSource source) async {
+    try {
+      final XFile? image = await imagePicker.pickImage(
+        source: source,
+        imageQuality: 80,
+        maxWidth: 1024,
+        maxHeight: 1024,
+      );
+
+      if (image != null) {
+        final file = File(image.path);
+        productImageFile.value = file;
+      }
+    } catch (e) {
+      handleControllerExceptions(e);
+    }
+  }
+
+  Future<void> uploadProductImage({
+    required File image,
+  }) async {
+    var token = await LocalStorageHelper.getAuthInfoFromStorage();
+    try {
+      // Create FormData for multipart/form-data upload
+      Map<String, dynamic> formDataMap = {
+        // 'product_name': productTitleController.text.trim(),
+        // 'product_description': productDescriptionController.text.trim(),
+        // 'sale_price': salePriceController.text.trim(),
+        // 'offer_price': offerPriceController.text.trim(),
+        // 'whole_sale': wholeSaleController.text.trim(),
+      };
+      print('formDataMap: ${jsonEncode(formDataMap)}');
+      // Add photo as MultipartFile if image is selected
+     
+        if (productImageFile.value != null) {
+          formDataMap['photo'] = await dio.MultipartFile.fromFile(
+            productImageFile.value!.path,
+            filename: productImageFile.value!.path.split('/').last,
+          );
+        }
+
+        dio.FormData formData = dio.FormData.fromMap(formDataMap);
+
+        final response = await APIHelper().request(
+          url: 'seller/product/create',
+          method: Method.POST,
+          token: token?['token'],
+          params: {
+            'image': image.path,
+          },
+        );
+      return response.data;
+    } catch (e) {
+      handleControllerExceptions(e);
     }
   }
 }

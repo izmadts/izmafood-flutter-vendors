@@ -38,15 +38,21 @@ class AddNewProductPage extends GetView<AddProductController> {
                     children: [
                       _ScanOrSearchField(),
                       SizedBox(height: 10.h),
-                      _OutlinedTextField(
+                      buildOutlinedTextField(
+                        context: context,
+                        controller: controller.barCodeController,
                         hintText: 'Barcode',
                       ),
                       SizedBox(height: 10.h),
-                      _OutlinedTextField(
+                      buildOutlinedTextField(
+                        context: context,
+                        controller: controller.productTitleController,
                         hintText: 'Product Title',
                       ),
                       SizedBox(height: 10.h),
-                      _OutlinedTextField(
+                      buildOutlinedTextField(
+                        context: context,
+                        controller: controller.productDescriptionController,
                         hintText: 'Product Description',
                         maxLines: 4,
                       ),
@@ -92,26 +98,32 @@ class AddNewProductPage extends GetView<AddProductController> {
                       Row(
                         children: [
                           Expanded(
-                            child: _OutlinedTextField(
+                            child: buildOutlinedTextField(
+                              context: context,
+                              controller: controller.salePriceController,
                               hintText: 'Sale Price',
                             ),
                           ),
                           SizedBox(width: 10.w),
                           Expanded(
-                            child: _OutlinedTextField(
+                            child: buildOutlinedTextField(
+                              context: context,
+                              controller: controller.offerPriceController,
                               hintText: 'Offer Price',
                             ),
                           ),
                           SizedBox(width: 10.w),
                           Expanded(
-                            child: _OutlinedTextField(
+                            child: buildOutlinedTextField(
+                              context: context,
+                              controller: controller.wholeSaleController,
                               hintText: 'Whole Sale',
                             ),
                           ),
                         ],
                       ),
                       SizedBox(height: 10.h),
-                      _UploadImageField(),
+                      buildUploadImage(context),
                       SizedBox(height: 24.h),
                       buildSubmitButton(context),
                       SizedBox(height: 24.h),
@@ -404,6 +416,74 @@ class AddNewProductPage extends GetView<AddProductController> {
       ),
     );
   }
+
+  Widget buildOutlinedTextField({
+    required BuildContext context,
+    required String hintText,
+    int maxLines = 1,
+    required TextEditingController controller,
+  }) {
+    return TextField(
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        hintText: hintText,
+        hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontSize: 14,
+            ),
+        filled: true,
+        fillColor: kcPrimaryColor,
+        contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(kdBorderRadius),
+          borderSide: const BorderSide(color: kcSecondaryColor),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(kdBorderRadius),
+          borderSide: const BorderSide(color: kcSecondaryColor, width: 1.2),
+        ),
+      ),
+    );
+  }
+
+  Widget buildUploadImage(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        controller.showShopImageSourceDialog();
+      },
+      child: Container(
+        height: 56.h,
+        decoration: BoxDecoration(
+          color: kcPrimaryColor,
+          borderRadius: BorderRadius.circular(kdBorderRadius),
+          border: Border.all(color: kcSecondaryColor),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 14.w),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Upload Product Image',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: kcTextGreyColor,
+                    ),
+              ),
+            ),
+            Container(
+              width: 46.w,
+              decoration: BoxDecoration(
+                color: kcSecondaryColor,
+                borderRadius: BorderRadius.circular(kdBorderRadius),
+              ),
+              child: const Icon(
+                Icons.image_outlined,
+                color: kcPrimaryColor,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _ScanOrSearchField extends StatelessWidget {
@@ -438,79 +518,6 @@ class _ScanOrSearchField extends StatelessWidget {
             ),
             child: const Icon(
               Icons.qr_code_scanner_rounded,
-              color: kcPrimaryColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _OutlinedTextField extends StatelessWidget {
-  const _OutlinedTextField({
-    required this.hintText,
-    this.maxLines = 1,
-  });
-
-  final String hintText;
-  final int maxLines;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      maxLines: maxLines,
-      decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              // color: kcTextGreyColor,
-              fontSize: 14,
-            ),
-        filled: true,
-        fillColor: kcPrimaryColor,
-        contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(kdBorderRadius),
-          borderSide: const BorderSide(color: kcSecondaryColor),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(kdBorderRadius),
-          borderSide: const BorderSide(color: kcSecondaryColor, width: 1.2),
-        ),
-      ),
-    );
-  }
-}
-
-class _UploadImageField extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 56.h,
-      decoration: BoxDecoration(
-        color: kcPrimaryColor,
-        borderRadius: BorderRadius.circular(kdBorderRadius),
-        border: Border.all(color: kcSecondaryColor),
-      ),
-      padding: EdgeInsets.symmetric(horizontal: 14.w),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              'Upload Product Image',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: kcTextGreyColor,
-                  ),
-            ),
-          ),
-          Container(
-            width: 46.w,
-            decoration: BoxDecoration(
-              color: kcSecondaryColor,
-              borderRadius: BorderRadius.circular(kdBorderRadius),
-            ),
-            child: const Icon(
-              Icons.image_outlined,
               color: kcPrimaryColor,
             ),
           ),

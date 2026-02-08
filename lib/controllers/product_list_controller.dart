@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:izma_foods_vendor/config/local_storage.dart';
-import 'package:izma_foods_vendor/controllers/auth_controller.dart';
 import 'package:izma_foods_vendor/helpers/api_exception.dart';
 import 'package:izma_foods_vendor/helpers/api_helper.dart';
 import 'package:izma_foods_vendor/helpers/global_helpers.dart';
@@ -105,8 +104,6 @@ class ProductListController extends GetxController {
       print("testing: ${response.data}");
       categoriesModel.value = CategoryModel.fromJson(response.data);
       if (categoriesModel.value?.status == 'true') {
-        // selectedCategory.value = categoriesModel.value?.subCategory
-        //     ?.firstWhere((element) => element.id == item);
         selectedCategory.value = categoriesModel.value?.subCategory?.first;
         showSnackBar(
             'Categories fetched successfully ${selectedCategory.value?.id}');
