@@ -119,6 +119,7 @@ class Datum {
     String? role;
     String? subCatId;
     dynamic stockAvailable;
+    String? isAdded;
 
     Datum({
         this.id,
@@ -147,6 +148,7 @@ class Datum {
         this.role,
         this.subCatId,
         this.stockAvailable,
+        this.isAdded,
     });
 
     factory Datum.fromJson(Map<String, dynamic> json) => Datum(
@@ -176,6 +178,7 @@ class Datum {
         role: json["role"],
         subCatId: json["sub_cat_id"],
         stockAvailable: json["stockAvailable"],
+        isAdded: json["is_added"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -205,6 +208,7 @@ class Datum {
         "role": role,
         "sub_cat_id": subCatId,
         "stockAvailable": stockAvailable,
+        "is_added": isAdded,
     };
 }
 

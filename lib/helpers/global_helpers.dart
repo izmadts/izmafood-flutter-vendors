@@ -7,9 +7,6 @@ import 'package:izma_foods_vendor/config/constants.dart';
 import 'package:izma_foods_vendor/config/theme.dart';
 import 'package:izma_foods_vendor/helpers/api_exception.dart';
 
-
-
-
 Future<Position> getCurrentLocation() async {
   bool serviceEnabled;
   LocationPermission permission;
@@ -38,7 +35,6 @@ Future<Position> getCurrentLocation() async {
   return await Geolocator.getCurrentPosition();
 }
 
-
 void mPrint(String text) {
   print('\x1B[33m$text\x1B[0m');
 }
@@ -57,6 +53,10 @@ getLoading() {
 
 profileImageUrl(String url) {
   return kBaseImageUrl + url;
+}
+
+productImageUrl(String url) {
+  return kBaseUrl + url;
 }
 
 handleControllerExceptions(e) {

@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:izma_foods_vendor/config/theme.dart';
 import 'package:izma_foods_vendor/controllers/product_list_controller.dart';
+import 'package:izma_foods_vendor/helpers/global_helpers.dart';
 import 'package:izma_foods_vendor/pages/products/add_new_product.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_app_bar.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_radial_gradient_container.dart';
 
-class ProductsPage extends StatelessWidget {
+class ProductsPage extends GetView<ProductListController> {
   ProductsPage({super.key});
   final controller = Get.put(ProductListController());
   @override
@@ -40,104 +41,197 @@ class ProductsPage extends StatelessWidget {
                 ),
               ],
             ),
-            Container(
-              height: 40,
-              child: ListView.separated(
-                padding: EdgeInsets.symmetric(horizontal: kdPadding),
-                physics: const BouncingScrollPhysics(),
-                itemBuilder: (context, index) => Container(
-                  alignment: Alignment.center,
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  decoration: BoxDecoration(
-                    color: index == 0 ? kcTextGreyColor : null,
-                    borderRadius: BorderRadius.circular(kdBorderRadius),
-                    border: Border.all(color: kcTextGreyColor),
-                  ),
-                  child: Text("Grocery",
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(color: index == 0 ? Colors.yellow : null)),
-                ),
-                separatorBuilder: (context, index) => SizedBox(width: 10),
-                itemCount: 10,
-                scrollDirection: Axis.horizontal,
-              ),
+            Obx(
+              () => controller.selectedCategoryLoading.value
+                  ? Center(child: CircularProgressIndicator())
+                  : Container(
+                      height: 40,
+                      child: ListView.separated(
+                        padding: EdgeInsets.symmetric(horizontal: kdPadding),
+                        physics: const BouncingScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return GestureDetector(
+                            onTap: () {
+                              controller.selectedCategoryLoading.value = true;
+
+                              controller.selectedCategory.value = controller
+                                  .categoriesModel.value?.subCategory?[index];
+                           
+                           // Calling the api to get the product list
+                              controller.getProductList(
+                                controller.categoriesModel.value
+                                    ?.subCategory?[index].id,
+                              );
+                              controller.selectedCategoryLoading.value = false;
+                            },
+                            child: Container(
+                              alignment: Alignment.center,
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              decoration: BoxDecoration(
+                                color: controller.selectedCategory.value?.id ==
+                                        controller.categoriesModel.value
+                                            ?.subCategory?[index].id
+                                    ? kcTextGreyColor
+                                    : null,
+                                borderRadius:
+                                    BorderRadius.circular(kdBorderRadius),
+                                border: Border.all(color: kcTextGreyColor),
+                              ),
+                              child: Text(
+                                controller.categoriesModel.value
+                                        ?.subCategory?[index].title ??
+                                    '',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: controller
+                                                  .selectedCategory.value?.id ==
+                                              controller.categoriesModel.value
+                                                  ?.subCategory?[index].id
+                                          ? Colors.yellow
+                                          : null,
+                                    ),
+                              ),
+                            ),
+                          );
+                        },
+                        separatorBuilder: (context, index) =>
+                            SizedBox(width: 10),
+                        itemCount: controller
+                                .categoriesModel.value?.subCategory?.length ??
+                            0,
+                        scrollDirection: Axis.horizontal,
+                      ),
+                    ),
             ),
             SizedBox(height: kdPadding),
-            Expanded(
-              child: ListView.separated(
-                physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.all(kdPadding),
-                itemBuilder: (context, index) => Container(
-                  child: Row(
-                    children: [
-                      Container(
-                        height: 40,
-                        width: 40,
-                        padding: EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(kdBorderRadius),
-                          border: Border.all(color: kcSecondaryColor),
-                        ),
-                        clipBehavior: Clip.antiAlias,
-                        child: Image.network(controller.productListModel.value
-                                ?.data?.data?[index].photo ??
-                            ''),
-                      ),
-                      SizedBox(width: 4),
-                      Expanded(
-                        child: Container(
-                          height: 40,
-                          padding: EdgeInsets.all(5),
-                          alignment: Alignment.centerLeft,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(kdBorderRadius),
-                            border: Border.all(color: kcSecondaryColor),
+            Obx(
+              () => controller.isLoading.value
+                  ? Center(child: CircularProgressIndicator())
+                  : Expanded(
+                      child: ListView.separated(
+                        physics: const BouncingScrollPhysics(),
+                        padding: EdgeInsets.all(kdPadding),
+                        itemBuilder: (context, index) => Container(
+                          child: Row(
+                            children: [
+                              Container(
+                                height: 40,
+                                width: 40,
+                                padding: EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                  borderRadius:
+                                      BorderRadius.circular(kdBorderRadius),
+                                  border: Border.all(color: kcSecondaryColor),
+                                ),
+                                clipBehavior: Clip.antiAlias,
+                                child: Image.network(
+                                  productImageUrl(controller.productListModel
+                                          .value?.data?.data?[index].photo ??
+                                      ''),
+                                ),
+                              ),
+                              SizedBox(width: 4),
+                              Expanded(
+                                child: Container(
+                                  // height: 40,
+                                  padding: EdgeInsets.all(5),
+                                  alignment: Alignment.centerLeft,
+                                  decoration: BoxDecoration(
+                                    borderRadius:
+                                        BorderRadius.circular(kdBorderRadius),
+                                    border: Border.all(color: kcSecondaryColor),
+                                  ),
+                                  clipBehavior: Clip.antiAlias,
+                                  child: Text(
+                                    controller.productListModel.value?.data
+                                            ?.data?[index].title ??
+                                        '',
+                                    textAlign: TextAlign.start,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 4),
+                              Container(
+                                height: 40,
+                                width: 80,
+                                padding: EdgeInsets.all(5),
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  borderRadius:
+                                      BorderRadius.circular(kdBorderRadius),
+                                  border: Border.all(color: kcSecondaryColor),
+                                ),
+                                clipBehavior: Clip.antiAlias,
+                                child: TextFormField(
+                                  controller: controller
+                                      .listOfTextEditingControllers[index],
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter a valid price';
+                                    }
+                                    if (double.parse(value) < 0) {
+                                      return 'Price cannot be negative';
+                                    }
+                                    if (double.parse(value) > 1000000) {
+                                      return 'Price cannot be greater than 1000000';
+                                    }
+                                    return null;
+                                  },
+                                  keyboardType: TextInputType.number,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText:
+                                        "Rs ${controller.productListModel.value?.data?.data?[index].rprice ?? 0}",
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 4),
+                              GestureDetector(
+                                onTap: () => controller.addProduct(
+                                    index,
+                                    controller
+                                        .listOfTextEditingControllers[index]
+                                        .text,
+                                    controller.productListModel.value?.data
+                                        ?.data?[index].id),
+                                child: Container(
+                                  height: 40,
+                                  width: 40,
+                                  padding: EdgeInsets.all(5),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    borderRadius:
+                                        BorderRadius.circular(kdBorderRadius),
+                                    color: controller.productListModel.value
+                                                ?.data?.data?[index].isAdded ==
+                                            '0'
+                                        ? kcSecondaryColor
+                                        : Colors.red,
+                                    border: Border.all(color: kcSecondaryColor),
+                                  ),
+                                  clipBehavior: Clip.antiAlias,
+                                  child: controller.productListModel.value?.data
+                                              ?.data?[index].isAdded ==
+                                          '0'
+                                      ? Icon(Icons.add_rounded,
+                                          color: kcPrimaryColor)
+                                      : Icon(Icons.check_rounded,
+                                          color: kcPrimaryColor),
+                                ),
+                              ),
+                            ],
                           ),
-                          clipBehavior: Clip.antiAlias,
-                          child: Text(controller.productListModel.value?.data
-                                  ?.data?[index].title ??
-                              ''),
                         ),
-                      ),
-                      SizedBox(width: 4),
-                      Container(
-                        height: 40,
-                        width: 80,
-                        padding: EdgeInsets.all(5),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(kdBorderRadius),
-                          border: Border.all(color: kcSecondaryColor),
+                        separatorBuilder: (context, index) => SizedBox(
+                          height: 10,
                         ),
-                        clipBehavior: Clip.antiAlias,
-                        child: Text(
-                            "Rs ${controller.productListModel.value?.data?.data?[index].sprice ?? 0}"),
+                        itemCount: controller
+                                .productListModel.value?.data?.data?.length ??
+                            0,
                       ),
-                      SizedBox(width: 4),
-                      Container(
-                        height: 40,
-                        width: 40,
-                        padding: EdgeInsets.all(5),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(kdBorderRadius),
-                          color: kcSecondaryColor,
-                          border: Border.all(color: kcSecondaryColor),
-                        ),
-                        clipBehavior: Clip.antiAlias,
-                        child: Icon(Icons.add_rounded, color: kcPrimaryColor),
-                      ),
-                    ],
-                  ),
-                ),
-                separatorBuilder: (context, index) => SizedBox(
-                  height: 10,
-                ),
-                itemCount:
-                    controller.productListModel.value?.data?.data?.length ?? 0,
-              ),
+                    ),
             ),
           ],
         ),

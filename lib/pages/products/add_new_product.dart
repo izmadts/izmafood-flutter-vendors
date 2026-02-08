@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:izma_foods_vendor/config/theme.dart';
+import 'package:izma_foods_vendor/controllers/add_product_controller.dart';
+import 'package:izma_foods_vendor/models/brands_list_model.dart';
+import 'package:izma_foods_vendor/models/category_model.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_app_bar.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_radial_gradient_container.dart';
+import 'package:izma_foods_vendor/models/attribute_model.dart'
+    as attribute_model;
+import 'package:izma_foods_vendor/models/attribute_value_model.dart'
+    as attribute_value_model;
 
-class AddNewProductPage extends StatelessWidget {
-  const AddNewProductPage({super.key});
+class AddNewProductPage extends GetView<AddProductController> {
+  AddNewProductPage({super.key});
+  final controller = Get.put(AddProductController());
 
   @override
   Widget build(BuildContext context) {
@@ -44,37 +53,40 @@ class AddNewProductPage extends StatelessWidget {
                       SizedBox(height: 10.h),
                       Row(
                         children: [
-                          Expanded(
-                            child: _DropdownField(
-                              title: 'Select Brand',
-                            ),
-                          ),
-                          SizedBox(width: 10.w),
-                          Expanded(
-                            child: _DropdownField(
-                              title: 'Select Category',
-                              hasErrorIcon: true,
-                            ),
-                          ),
+                          selectBrand(context),
+                          SizedBox(width: 10),
+                          selectCategory(context),
                         ],
                       ),
                       SizedBox(height: 10.h),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _RadioChip(
-                              label: 'Stock\nAvailable',
-                              isSelected: true,
+                      attributes(context),
+                      SizedBox(height: 10.h),
+                      selectedAttributeValue(context),
+                      SizedBox(height: 10.h),
+                      Obx(
+                        () => Row(
+                          children: [
+                            Expanded(
+                              child: buildRadioChip(
+                                context: context,
+                                isSelected: controller.stocksAvailable.value
+                                    ? true
+                                    : false,
+                                label: 'Stock\nAvailable',
+                              ),
                             ),
-                          ),
-                          SizedBox(width: 10.w),
-                          Expanded(
-                            child: _RadioChip(
-                              label: 'Not Availabile',
-                              isSelected: false,
+                            SizedBox(width: 10.w),
+                            Expanded(
+                              child: buildRadioChip(
+                                context: context,
+                                isSelected: !controller.stocksAvailable.value
+                                    ? true
+                                    : false,
+                                label: 'Not Availabile',
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       SizedBox(height: 10.h),
                       Row(
@@ -101,7 +113,7 @@ class AddNewProductPage extends StatelessWidget {
                       SizedBox(height: 10.h),
                       _UploadImageField(),
                       SizedBox(height: 24.h),
-                      _SubmitButton(),
+                      buildSubmitButton(context),
                       SizedBox(height: 24.h),
                     ],
                   ),
@@ -109,6 +121,285 @@ class AddNewProductPage extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget attributes(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10),
+      // width: ,
+      height: 60,
+      decoration: BoxDecoration(
+        color: kcSecondaryColor,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Obx(
+        () => DropdownButtonHideUnderline(
+          child: DropdownButton<attribute_model.Datum>(
+            value: controller.selectedAttribute.value,
+            isExpanded: true,
+            dropdownColor: kcSecondaryColor.withOpacity(0.9),
+            iconEnabledColor: Colors.white,
+            hint: Text(
+              'Attributes',
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: Colors.white70),
+            ),
+            items: controller.attributeListModel.value?.data
+                    ?.map(
+                      (e) => DropdownMenuItem<attribute_model.Datum>(
+                        value: e,
+                        child: GestureDetector(
+                          onTap: () {
+                            controller.selectedAttributeValue.value =
+                                e.attributeTitle ?? '';
+                          },
+                          child: Text(e.attributeTitle ?? ''),
+                        ),
+                      ),
+                    )
+                    .toList() ??
+                [],
+            onChanged: (value) {
+              if (value != null) {
+                controller.selectedAttribute.value = value;
+                controller.selectedAttributeValue.value = value.id.toString();
+                controller.attributeValue(value);
+              }
+            },
+            isDense: true,
+            icon: const Icon(Icons.keyboard_arrow_down),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Colors.white,
+                ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget selectedAttributeValue(BuildContext context) {
+    return Obx(
+      () => controller.isAttributeSelected.value
+          ? const Center(child: CircularProgressIndicator())
+          : Visibility(
+              visible: controller.selectedAttribute.value != null &&
+                  controller.selectedAttributeValue.value != '',
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                // width: ,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: kcSecondaryColor,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Obx(
+                  () => DropdownButtonHideUnderline(
+                    child: DropdownButton<attribute_value_model.Datum>(
+                      value: controller.selectedAttributeValueItem.value,
+                      isExpanded: true,
+                      dropdownColor: kcSecondaryColor.withOpacity(0.9),
+                      iconEnabledColor: Colors.white,
+                      hint: Text(
+                        'Attributes',
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(color: Colors.white70),
+                      ),
+                      items: controller.attributeValueListModel.value?.data
+                              ?.map(
+                                (e) => DropdownMenuItem<
+                                    attribute_value_model.Datum>(
+                                  value: e,
+                                  child: Text(e.comment ?? ''),
+                                ),
+                              )
+                              .toList() ??
+                          [],
+                      onChanged: (value) {
+                        if (value != null) {
+                          controller.selectedAttributeValueItem.value = value;
+                        }
+                      },
+                      isDense: true,
+                      icon: const Icon(Icons.keyboard_arrow_down),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.white,
+                          ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+    );
+  }
+
+  Expanded selectCategory(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        height: 60,
+        decoration: BoxDecoration(
+          color: kcSecondaryColor,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Obx(
+          () => DropdownButtonHideUnderline(
+            child: DropdownButton<SubCategory>(
+              value: controller.selectedCategory.value,
+              // lighter kcSecondaryColor for dropdown menu
+              isExpanded: true,
+              dropdownColor: kcSecondaryColor.withOpacity(0.9),
+              iconEnabledColor: Colors.white,
+              hint: Text(
+                'Select Category',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: Colors.white70),
+              ),
+              items: controller.categoryListModel.value?.subCategory
+                  ?.map(
+                    (brand) => DropdownMenuItem(
+                      value: brand,
+                      child: Text(brand.title ?? ''),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  controller.selectedCategory.value = value;
+                }
+              },
+              isDense: true,
+              icon: const Icon(Icons.keyboard_arrow_down),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.white,
+                  ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Expanded selectBrand(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        // width: ,
+        height: 60,
+        decoration: BoxDecoration(
+          color: kcSecondaryColor,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Obx(
+          () => DropdownButtonHideUnderline(
+            child: DropdownButton<Datum>(
+              value: controller.selectedBrand.value,
+              isExpanded: true,
+              dropdownColor: kcSecondaryColor.withOpacity(0.9),
+              iconEnabledColor: Colors.white,
+              hint: Text(
+                'Select Brand',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: Colors.white70),
+              ),
+              items: controller.brandListModel.value?.data
+                  ?.map(
+                    (brand) => DropdownMenuItem(
+                      value: brand,
+                      child: Text(brand.title ?? ''),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  controller.selectedBrand.value = value;
+                }
+              },
+              isDense: true,
+              icon: const Icon(Icons.keyboard_arrow_down),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.white,
+                  ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildRadioChip({
+    required BuildContext context,
+    required bool isSelected,
+    required String label,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        if (label == 'Stock\nAvailable') {
+          controller.stocksAvailable.value = true;
+        } else {
+          controller.stocksAvailable.value = false;
+        }
+      },
+      child: Container(
+        height: 60.h,
+        padding: EdgeInsets.symmetric(horizontal: 14.w),
+        decoration: BoxDecoration(
+          color: kcPrimaryColor,
+          borderRadius: BorderRadius.circular(kdBorderRadius),
+          border: Border.all(color: kcSecondaryColor),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              isSelected
+                  ? Icons.radio_button_checked_rounded
+                  : Icons.radio_button_unchecked_rounded,
+              color: kcSecondaryColor,
+            ),
+            SizedBox(width: 8.w),
+            Expanded(
+              child: Text(
+                label,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildSubmitButton(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 56.h,
+      child: ElevatedButton.icon(
+        onPressed: () {},
+        style: ElevatedButton.styleFrom(
+          backgroundColor: kcSecondaryColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(kdBorderRadius),
+          ),
+        ),
+        icon: const Icon(
+          Icons.save_outlined,
+          color: kcPrimaryColor,
+        ),
+        label: Text(
+          'Submit',
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: kcPrimaryColor,
+              ),
         ),
       ),
     );
@@ -191,87 +482,6 @@ class _OutlinedTextField extends StatelessWidget {
   }
 }
 
-class _DropdownField extends StatelessWidget {
-  const _DropdownField({
-    required this.title,
-    this.hasErrorIcon = false,
-  });
-
-  final String title;
-  final bool hasErrorIcon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 52.h,
-      padding: EdgeInsets.symmetric(horizontal: 14.w),
-      decoration: BoxDecoration(
-        color: kcPrimaryColor,
-        borderRadius: BorderRadius.circular(kdBorderRadius),
-        border: Border.all(color: kcSecondaryColor),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              title,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: kcTextGreyColor,
-                  ),
-            ),
-          ),
-          Icon(
-            hasErrorIcon
-                ? Icons.keyboard_arrow_down_rounded
-                : Icons.keyboard_arrow_down_rounded,
-            color: kcTextGreyColor,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _RadioChip extends StatelessWidget {
-  const _RadioChip({
-    required this.label,
-    required this.isSelected,
-  });
-
-  final String label;
-  final bool isSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 60.h,
-      padding: EdgeInsets.symmetric(horizontal: 14.w),
-      decoration: BoxDecoration(
-        color: kcPrimaryColor,
-        borderRadius: BorderRadius.circular(kdBorderRadius),
-        border: Border.all(color: kcSecondaryColor),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            isSelected
-                ? Icons.radio_button_checked_rounded
-                : Icons.radio_button_unchecked_rounded,
-            color: kcSecondaryColor,
-          ),
-          SizedBox(width: 8.w),
-          Expanded(
-            child: Text(
-              label,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _UploadImageField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -305,35 +515,6 @@ class _UploadImageField extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _SubmitButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 56.h,
-      child: ElevatedButton.icon(
-        onPressed: () {},
-        style: ElevatedButton.styleFrom(
-          backgroundColor: kcSecondaryColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(kdBorderRadius),
-          ),
-        ),
-        icon: const Icon(
-          Icons.save_outlined,
-          color: kcPrimaryColor,
-        ),
-        label: Text(
-          'Submit',
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: kcPrimaryColor,
-              ),
-        ),
       ),
     );
   }
