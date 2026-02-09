@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:izma_foods_vendor/config/theme.dart';
 import 'package:izma_foods_vendor/controllers/auth_controller.dart';
+import 'package:izma_foods_vendor/helpers/global_helpers.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_app_bar.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_primary_button.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_radial_gradient_container.dart';
@@ -97,7 +98,22 @@ class RegisterPageOne extends StatelessWidget {
                     SizedBox(height: kdPadding),
                     IzmaPrimaryButton(
                       title: "Next",
-                      onTap: () => controller.registerPageOne(),
+                      onTap: () {
+                        if (controller.selectedImage.value == null) {
+                          showSnackBar('Please upload your photo');
+                          return;
+                        } else if (controller.dateOfBirth.value.isEmpty ||
+                            controller.dateOfBirth.value == '') {
+                          showSnackBar('Please select your date of birth');
+                          return;
+                        } else if (controller.addressController.text.isEmpty ||
+                            controller.addressController.text == '') {
+                          showSnackBar('Please enter your address');
+                          return;
+                        } else {
+                          controller.registerPageOne();
+                        }
+                      },
                     )
                   ],
                 ),

@@ -59,7 +59,7 @@ class HurrayPage extends StatelessWidget {
                         ),
                         SizedBox(height: 24.h),
                         IzmaPrimaryButton(
-                          title: "Done",
+                          title: "Contact Support",
                           onTap: () => Get.to(() => MainPage()),
                         ),
                       ],

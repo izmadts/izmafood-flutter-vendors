@@ -151,7 +151,6 @@ class AuthController extends GetxController {
       );
       print('response login: ${jsonEncode(response.data)}');
       loginModel.value = LoginModel.fromJson(response.data);
-      print('loginModel: ${jsonEncode(loginModel.value)}');
       // If API still uses old error format with status == false
       if (loginModel.value != null && loginModel.value?.status == false) {
         throw APIException(
@@ -180,6 +179,7 @@ class AuthController extends GetxController {
       }
     } catch (e) {
       handleControllerExceptions(e);
+      print('error login: ${e.toString()}');
     } finally {
       isLoading(false);
     }
@@ -543,13 +543,16 @@ class AuthController extends GetxController {
   Future<void> registerPageOne() async {
     var token = await LocalStorageHelper.getAuthInfoFromStorage();
     try {
+      print(
+          'loginModel.value?.data?.user?.mobile: ${loginModel.value?.data?.user?.mobile}');
       isLoading(true);
 
       // Create FormData for multipart/form-data upload
       Map<String, dynamic> formDataMap = {
         'name': loginModel.value?.data?.user?.name?.trim(),
-        'mobile': 031066690634,
-        // int.parse(loginModel.value?.data?.user?.mobile ?? '0000000000'),
+        'mobile':
+            loginModel.value?.data?.user?.mobile.toString().substring(0) ??
+                '0000000000',
         'dob': dateOfBirth.value.trim(),
         'gender': selectedGender.value.toLowerCase().trim(),
       };

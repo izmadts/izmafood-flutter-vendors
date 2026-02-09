@@ -202,7 +202,7 @@ class _MorePageState extends State<MorePage> {
                   title: "Log out",
                   color: Colors.red,
                   onTap: () {
-                    // _authController.logOut();
+                    _authController.logOut();
                   }),
             ],
           ),

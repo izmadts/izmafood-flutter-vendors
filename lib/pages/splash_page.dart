@@ -50,7 +50,7 @@ class _SplashPageState extends State<SplashPage> {
   init() async {
     await Future.delayed(Duration(seconds: duration), () async {
       var token = await LocalStorageHelper.getAuthInfoFromStorage();
-
+      print('token: ${token?['token']}');
       if (token?['token'] == null || token?['token']?.isEmpty) {
         Get.offAll(() => LoginPage());
         return;

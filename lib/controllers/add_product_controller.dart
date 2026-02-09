@@ -213,7 +213,6 @@ class AddProductController extends GetxController {
   }) async {
     var token = await LocalStorageHelper.getAuthInfoFromStorage();
     try {
-      // Create FormData for multipart/form-data upload
       Map<String, dynamic> formDataMap = {
         // 'product_name': productTitleController.text.trim(),
         // 'product_description': productDescriptionController.text.trim(),
