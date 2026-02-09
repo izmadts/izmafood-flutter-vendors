@@ -103,6 +103,9 @@ class AuthController extends GetxController {
   final shopCategoriesModel = Rxn<MainModel>();
   final selectedShopCategory = Rxn<Category>();
 
+  final isRegisterPageOne = false.obs;
+  final isRegisterPageTwo = false.obs;
+
   onInit() {
     super.onInit();
     getShopCategoriesModel();
@@ -423,14 +426,6 @@ class AuthController extends GetxController {
                 pickImage(ImageSource.camera);
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Gallery'),
-              onTap: () {
-                Get.back();
-                pickImage(ImageSource.gallery);
-              },
-            ),
           ],
         ),
       ),
@@ -545,8 +540,7 @@ class AuthController extends GetxController {
     try {
       print(
           'loginModel.value?.data?.user?.mobile: ${loginModel.value?.data?.user?.mobile}');
-      isLoading(true);
-
+      isRegisterPageOne(true);
       // Create FormData for multipart/form-data upload
       Map<String, dynamic> formDataMap = {
         'name': loginModel.value?.data?.user?.name?.trim(),
@@ -580,17 +574,20 @@ class AuthController extends GetxController {
           'Profile Updated Successfully') {
         showSnackBar(
             response.data['messege'] ?? 'Profile updated successfully');
+        isRegisterPageOne(false);
         Get.off(() => RegisterPageTwo());
       } else {
+        isRegisterPageOne(false);
         throw APIException(
           message: response.data['messege'] ?? 'Failed to update profile',
           statusCode: response.statusCode ?? 500,
         );
       }
     } catch (e) {
+      isRegisterPageOne(false);
       handleControllerExceptions(e);
     } finally {
-      isLoading(false);
+      isRegisterPageOne(false);
     }
   }
 
@@ -598,7 +595,7 @@ class AuthController extends GetxController {
     var token = await LocalStorageHelper.getAuthInfoFromStorage();
     var latlong = await getCurrentLocation();
     try {
-      isLoading(true);
+      isRegisterPageTwo(true);
 
       final response = await APIHelper().request(
         url: 'seller/shop/create',
@@ -619,17 +616,20 @@ class AuthController extends GetxController {
       if (registerPageTwoModel.value?.success ==
           'You Shop data has been receive for verification please wait for approval') {
         showSnackBar(response.data['messege'] ?? 'Shop created successfully');
+        isRegisterPageTwo(false);
         Get.to(() => const RegisterPageThree());
       } else {
+        isRegisterPageTwo(false);
         throw APIException(
           message: response.data['messege'] ?? 'Failed to create shop',
           statusCode: response.statusCode ?? 500,
         );
       }
     } catch (e) {
+      isRegisterPageTwo(false);
       handleControllerExceptions(e);
     } finally {
-      isLoading(false);
+      isRegisterPageTwo(false);
     }
   }
 
@@ -681,7 +681,7 @@ class AuthController extends GetxController {
 
   /// Register Page Three: go to main page (call when Continue is tapped; required files already checked in UI).
   Future<void> registerPageThree() async {
-    Get.offAll(() => MainPage());
+    Get.offAll(() => HurrayPage());
   }
 
   getShopDetails() async {

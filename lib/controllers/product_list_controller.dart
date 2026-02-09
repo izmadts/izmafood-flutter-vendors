@@ -17,6 +17,7 @@ class ProductListController extends GetxController {
   final selectedCategoryLoading = false.obs;
   // final isSelectedCategory = 0.obs;
   final selectedCategory = Rxn<SubCategory>();
+  final searchController = TextEditingController();
 
   @override
   void onInit() {
@@ -24,6 +25,38 @@ class ProductListController extends GetxController {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       getCategories();
     });
+  }
+
+  searchProduct(String search, int? id) async {
+    print('calling this search');
+    var token = await LocalStorageHelper.getAuthInfoFromStorage();
+    try {
+      isLoading(true);
+      final response = await APIHelper().request(
+        url: 'seller/products?categories=$id&search=$search',
+        token: token?['token'],
+        method: Method.GET,
+      );
+      productListModel.value = ProductListModel.fromJson(response.data);
+      if (productListModel.value?.status == true) {
+        for (var element in productListModel.value?.data?.data ?? []) {
+          listOfTextEditingControllers
+              .add(TextEditingController(text: element.rprice ?? '0'));
+        }
+        isLoading(false);
+        showSnackBar('Product list fetched successfully');
+      } else {
+        isLoading(false);
+        throw APIException(
+          message: 'Failed to fetch product list',
+          statusCode: response.statusCode ?? 500,
+        );
+      }
+    } catch (e) {
+      handleControllerExceptions(e);
+    } finally {
+      isLoading(false);
+    }
   }
 
   getProductList(int? id) async {

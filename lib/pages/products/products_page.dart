@@ -6,6 +6,7 @@ import 'package:izma_foods_vendor/helpers/global_helpers.dart';
 import 'package:izma_foods_vendor/pages/products/add_new_product.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_app_bar.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_radial_gradient_container.dart';
+import 'package:izma_foods_vendor/pages/widget/izma_text_field.dart';
 
 class ProductsPage extends GetView<ProductListController> {
   ProductsPage({super.key});
@@ -56,8 +57,8 @@ class ProductsPage extends GetView<ProductListController> {
 
                               controller.selectedCategory.value = controller
                                   .categoriesModel.value?.subCategory?[index];
-                           
-                           // Calling the api to get the product list
+
+                              // Calling the api to get the product list
                               controller.getProductList(
                                 controller.categoriesModel.value
                                     ?.subCategory?[index].id,
@@ -105,7 +106,57 @@ class ProductsPage extends GetView<ProductListController> {
                       ),
                     ),
             ),
+
             SizedBox(height: kdPadding),
+            // Search Bar
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: kdPadding),
+              child: TextField(
+                controller: controller.searchController,
+                onChanged: (value) {
+                  if (value.trim().isNotEmpty) {
+                    controller.searchProduct(
+                        value.trim(), controller.selectedCategory.value?.id ?? 0);
+                  }
+                  else {
+                    controller.getProductList(
+                        controller.selectedCategory.value?.id ?? 0);
+                  }
+                },
+                decoration: InputDecoration(
+                  focusColor: kcSecondaryColor,
+                  hoverColor: kcSecondaryColor,
+                  fillColor: Colors.grey[200],
+                  filled: true,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: Colors.grey[200]!),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: kcSecondaryColor),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: Colors.grey[200]!),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: Colors.red),
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search_outlined,
+                  ),
+                  label: Text("Search",
+                      style: TextStyle(
+                          color: kcSecondaryColor,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500)),
+                ),
+              ),
+            ),
+
+            // SizedBox(height: kdPadding),
             Obx(
               () => controller.isLoading.value
                   ? Center(child: CircularProgressIndicator())
@@ -207,18 +258,22 @@ class ProductsPage extends GetView<ProductListController> {
                                     color: controller.productListModel.value
                                                 ?.data?.data?[index].isAdded ==
                                             '0'
-                                        ? kcSecondaryColor
-                                        : Colors.red,
-                                    border: Border.all(color: kcSecondaryColor),
+                                        ? kcYellowColor
+                                        : kcSecondaryColor,
+                                    // border: Border.all(color: kcSecondaryColor),
                                   ),
                                   clipBehavior: Clip.antiAlias,
                                   child: controller.productListModel.value?.data
                                               ?.data?[index].isAdded ==
                                           '0'
-                                      ? Icon(Icons.add_rounded,
-                                          color: kcPrimaryColor)
-                                      : Icon(Icons.check_rounded,
-                                          color: kcPrimaryColor),
+                                      ? Icon(
+                                          Icons.add_rounded,
+                                          color: kcPrimaryColor,
+                                        )
+                                      : Icon(
+                                          Icons.edit_rounded,
+                                          color: kcPrimaryColor,
+                                        ),
                                 ),
                               ),
                             ],

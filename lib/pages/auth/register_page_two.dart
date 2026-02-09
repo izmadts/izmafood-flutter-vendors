@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:izma_foods_vendor/config/theme.dart';
 import 'package:izma_foods_vendor/controllers/auth_controller.dart';
+import 'package:izma_foods_vendor/helpers/global_helpers.dart';
 import 'package:izma_foods_vendor/models/main_model.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_app_bar.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_primary_button.dart';
@@ -47,60 +48,54 @@ class RegisterPageTwo extends StatelessWidget {
                       padding:
                           const EdgeInsets.symmetric(horizontal: kdPadding),
                       child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          height: 60,
-                          decoration: BoxDecoration(
-                            color: kcSecondaryColor,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Obx(
-                            () => DropdownButtonHideUnderline(
-                              child: DropdownButton<String>(
-                                value: controller.selectedBank.value.isEmpty
-                                    ? null
-                                    : controller.selectedBank.value,
-                                dropdownColor:
-                                    kcSecondaryColor.withOpacity(0.9),
-                                iconEnabledColor: Colors.white,
-                                hint: Text(
-                                  'Bank',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(color: Colors.white70),
-                                ),
-                                items: controller.banks
-                                    .map(
-                                      (type) => DropdownMenuItem(
-                                        value: type,
-                                        child: Text(
-                                          type,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                color: Colors.white,
-                                              ),
-                                        ),
-                                      ),
-                                    )
-                                    .toList(),
-                                onChanged: (value) {
-                                  if (value != null) {
-                                    controller.selectedBank.value = value;
-                                  }
-                                },
-                                icon: const Icon(Icons.keyboard_arrow_down),
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: kcGreyColor,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Obx(
+                          () => DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: controller.selectedBank.value.isEmpty
+                                  ? null
+                                  : controller.selectedBank.value,
+                              dropdownColor: kcGreyColor,
+                              iconEnabledColor: Colors.black,
+                              hint: Text(
+                                'Bank',
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall
-                                    ?.copyWith(
-                                      color: Colors.white,
-                                    ),
+                                    ?.copyWith(color: Colors.black),
                               ),
+                              items: controller.banks
+                                  .map(
+                                    (type) => DropdownMenuItem(
+                                      value: type,
+                                      child: Text(
+                                        type,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(
+                                              color: Colors.black,
+                                            ),
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: (value) {
+                                if (value != null) {
+                                  controller.selectedBank.value = value;
+                                }
+                              },
+                              icon: const Icon(Icons.keyboard_arrow_down,
+                                  color: kcSecondaryColor),
                             ),
                           ),
                         ),
+                      ),
                     ),
                     const SizedBox(height: 10),
                     IzmaTextField(
@@ -113,10 +108,42 @@ class RegisterPageTwo extends StatelessWidget {
                       prefixIcon: Icons.home_outlined,
                       hintText: "Account Number",
                     ),
-                    IzmaPrimaryButton(
-                      title: "Submit",
-                      onTap: () => controller.registerPageTwo(),
-                    )
+                    Obx(
+                      () => controller.isRegisterPageTwo.value == true
+                          ? Center(child: CircularProgressIndicator())
+                          : IzmaPrimaryButton(
+                              title: "Submit",
+                              onTap: () {
+                                if (controller
+                                        .shopNameController.text.isEmpty ||
+                                    controller.shopNameController.text == '') {
+                                  showSnackBar('Please enter your shop name');
+                                  return;
+                                } else if (controller
+                                        .selectedBank.value.isEmpty ||
+                                    controller.selectedBank.value == '') {
+                                  showSnackBar('Please select your bank');
+                                  return;
+                                } else if (controller
+                                        .accountTitleController.text.isEmpty ||
+                                    controller.accountTitleController.text ==
+                                        '') {
+                                  showSnackBar(
+                                      'Please enter your account title');
+                                  return;
+                                } else if (controller
+                                        .accountNumberController.text.isEmpty ||
+                                    controller.accountNumberController.text ==
+                                        '') {
+                                  showSnackBar(
+                                      'Please enter your account number');
+                                  return;
+                                } else {
+                                  controller.registerPageTwo();
+                                }
+                              },
+                            ),
+                    ),
                   ],
                 ),
               )
@@ -138,7 +165,7 @@ class RegisterPageTwo extends StatelessWidget {
               // width: 150,
               height: 60,
               decoration: BoxDecoration(
-                color: kcSecondaryColor,
+                color: kcGreyColor,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Obx(
@@ -148,14 +175,14 @@ class RegisterPageTwo extends StatelessWidget {
                         ? null
                         : controller.selectedShopType.value,
                     // lighter kcSecondaryColor for dropdown menu
-                    dropdownColor: kcSecondaryColor.withOpacity(0.9),
+                    dropdownColor: kcGreyColor,
                     iconEnabledColor: Colors.white,
                     hint: Text(
                       'Type',
                       style: Theme.of(context)
                           .textTheme
                           .bodySmall
-                          ?.copyWith(color: Colors.white70),
+                          ?.copyWith(color: Colors.black),
                     ),
                     items: controller.shopTypes
                         .map(
@@ -167,7 +194,7 @@ class RegisterPageTwo extends StatelessWidget {
                                   .textTheme
                                   .bodySmall
                                   ?.copyWith(
-                                    color: Colors.white,
+                                    color: Colors.black,
                                   ),
                             ),
                           ),
@@ -178,10 +205,8 @@ class RegisterPageTwo extends StatelessWidget {
                         controller.selectedShopType.value = value;
                       }
                     },
-                    icon: const Icon(Icons.keyboard_arrow_down),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.white,
-                        ),
+                    icon: const Icon(Icons.keyboard_arrow_down,
+                        color: kcSecondaryColor),
                   ),
                 ),
               ),
@@ -194,21 +219,21 @@ class RegisterPageTwo extends StatelessWidget {
               // width: 150,
               height: 60,
               decoration: BoxDecoration(
-                color: kcSecondaryColor,
+                color: kcGreyColor,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Obx(
                 () => DropdownButtonHideUnderline(
                   child: DropdownButton<Category>(
                     value: controller.selectedShopCategory.value,
-                    dropdownColor: kcSecondaryColor.withOpacity(0.9),
+                    dropdownColor: kcGreyColor,
                     iconEnabledColor: Colors.white,
                     hint: Text(
                       'Category',
                       style: Theme.of(context)
                           .textTheme
                           .bodySmall
-                          ?.copyWith(color: Colors.white70),
+                          ?.copyWith(color: Colors.black),
                     ),
                     items: controller.shopCategoriesModel.value?.mainCategory
                         ?.map((type) => DropdownMenuItem(
@@ -218,7 +243,7 @@ class RegisterPageTwo extends StatelessWidget {
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall
-                                    ?.copyWith(color: Colors.white),
+                                    ?.copyWith(color: Colors.black),
                               ),
                             ))
                         .toList(),
@@ -227,10 +252,8 @@ class RegisterPageTwo extends StatelessWidget {
                         controller.selectedShopCategory.value = value;
                       }
                     },
-                    icon: const Icon(Icons.keyboard_arrow_down),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.white,
-                        ),
+                    icon: const Icon(Icons.keyboard_arrow_down,
+                        color: kcSecondaryColor),
                   ),
                 ),
               ),
@@ -240,5 +263,4 @@ class RegisterPageTwo extends StatelessWidget {
       ),
     );
   }
-
 }

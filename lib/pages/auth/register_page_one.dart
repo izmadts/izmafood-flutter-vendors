@@ -96,25 +96,29 @@ class RegisterPageOne extends StatelessWidget {
                     SizedBox(height: kdPadding),
                     Obx(() => _buildImageUploadContainer(controller)),
                     SizedBox(height: kdPadding),
-                    IzmaPrimaryButton(
-                      title: "Next",
-                      onTap: () {
-                        if (controller.selectedImage.value == null) {
-                          showSnackBar('Please upload your photo');
-                          return;
-                        } else if (controller.dateOfBirth.value.isEmpty ||
-                            controller.dateOfBirth.value == '') {
-                          showSnackBar('Please select your date of birth');
-                          return;
-                        } else if (controller.addressController.text.isEmpty ||
-                            controller.addressController.text == '') {
-                          showSnackBar('Please enter your address');
-                          return;
-                        } else {
-                          controller.registerPageOne();
-                        }
-                      },
-                    )
+                    Obx(() => controller.isRegisterPageOne.value == true
+                        ? Center(child: CircularProgressIndicator())
+                        : IzmaPrimaryButton(
+                            title: "Next",
+                            onTap: () {
+                              if (controller.selectedImage.value == null) {
+                                showSnackBar('Please upload your photo');
+                                return;
+                              } else if (controller.dateOfBirth.value.isEmpty ||
+                                  controller.dateOfBirth.value == '') {
+                                showSnackBar(
+                                    'Please select your date of birth');
+                                return;
+                              } else if (controller
+                                      .addressController.text.isEmpty ||
+                                  controller.addressController.text == '') {
+                                showSnackBar('Please enter your address');
+                                return;
+                              } else {
+                                controller.registerPageOne();
+                              }
+                            },
+                          )),
                   ],
                 ),
               )
