@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:izma_foods_vendor/controllers/auth_controller.dart';
 import 'package:izma_foods_vendor/helpers/global_helpers.dart';
 import 'package:izma_foods_vendor/pages/auth/login_page.dart';
+import 'package:izma_foods_vendor/pages/finance/finance_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../config/theme.dart';
@@ -111,6 +112,12 @@ class _MorePageState extends State<MorePage> {
                 // onTap: () => Get.to(() => OrderTrackingPage()),
 
                 // MyOrdersPage()),
+              ),
+              _buildMenuItem(
+                context: context,
+                icon: Icons.account_balance_wallet_outlined,
+                title: "Finance",
+                onTap: () => Get.to(() => const FinancePage()),
               ),
               _buildMenuItem(
                 context: context,

@@ -11,6 +11,7 @@ import 'package:izma_foods_vendor/models/attribute_model.dart'
     as attribute_model;
 import 'package:izma_foods_vendor/models/attribute_value_model.dart'
     as attribute_value_model;
+import 'package:izma_foods_vendor/pages/products/barcode_scanner_page.dart';
 
 class AddNewProductPage extends GetView<AddProductController> {
   AddNewProductPage({super.key});
@@ -34,100 +35,110 @@ class AddNewProductPage extends GetView<AddProductController> {
                   physics: const BouncingScrollPhysics(),
                   padding: EdgeInsets.symmetric(
                       horizontal: kdPadding, vertical: 8.h),
-                  child: Column(
-                    children: [
-                      _ScanOrSearchField(),
-                      SizedBox(height: 10.h),
-                      buildOutlinedTextField(
-                        context: context,
-                        controller: controller.barCodeController,
-                        hintText: 'Barcode',
-                      ),
-                      SizedBox(height: 10.h),
-                      buildOutlinedTextField(
-                        context: context,
-                        controller: controller.productTitleController,
-                        hintText: 'Product Title',
-                      ),
-                      SizedBox(height: 10.h),
-                      buildOutlinedTextField(
-                        context: context,
-                        controller: controller.productDescriptionController,
-                        hintText: 'Product Description',
-                        maxLines: 4,
-                      ),
-                      SizedBox(height: 10.h),
-                      Row(
-                        children: [
-                          selectBrand(context),
-                          SizedBox(width: 10),
-                          selectCategory(context),
-                        ],
-                      ),
-                      SizedBox(height: 10.h),
-                      attributes(context),
-                      SizedBox(height: 10.h),
-                      selectedAttributeValue(context),
-                      SizedBox(height: 10.h),
-                      Obx(
-                        () => Row(
-                          children: [
-                            Expanded(
-                              child: buildRadioChip(
+                  child: Obx(
+                    () => controller.isLoading.value
+                        ? const Center(child: CircularProgressIndicator())
+                        : Column(
+                            children: [
+                              buildScanOrSearchField(context),
+                              SizedBox(height: 10.h),
+                              buildOutlinedTextField(
                                 context: context,
-                                isSelected: controller.stocksAvailable.value
-                                    ? true
-                                    : false,
-                                label: 'Stock\nAvailable',
+                                controller: controller.barCodeController,
+                                hintText: 'Barcode',
                               ),
-                            ),
-                            SizedBox(width: 10.w),
-                            Expanded(
-                              child: buildRadioChip(
+                              SizedBox(height: 10.h),
+                              buildOutlinedTextField(
                                 context: context,
-                                isSelected: !controller.stocksAvailable.value
-                                    ? true
-                                    : false,
-                                label: 'Not Availabile',
+                                controller: controller.productTitleController,
+                                hintText: 'Product Title',
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 10.h),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: buildOutlinedTextField(
-                              context: context,
-                              controller: controller.salePriceController,
-                              hintText: 'Sale Price',
-                            ),
+                              SizedBox(height: 10.h),
+                              buildOutlinedTextField(
+                                context: context,
+                                controller:
+                                    controller.productDescriptionController,
+                                hintText: 'Product Description',
+                                maxLines: 4,
+                              ),
+                              SizedBox(height: 10.h),
+                              Row(
+                                children: [
+                                  selectBrand(context),
+                                  SizedBox(width: 10),
+                                  selectCategory(context),
+                                ],
+                              ),
+                              SizedBox(height: 10.h),
+                              attributes(context),
+                              SizedBox(height: 10.h),
+                              selectedAttributeValue(context),
+                              SizedBox(height: 10.h),
+                              Obx(
+                                () => Row(
+                                  children: [
+                                    Expanded(
+                                      child: buildRadioChip(
+                                        context: context,
+                                        isSelected:
+                                            controller.stocksAvailable.value
+                                                ? true
+                                                : false,
+                                        label: 'Stock\nAvailable',
+                                      ),
+                                    ),
+                                    SizedBox(width: 10.w),
+                                    Expanded(
+                                      child: buildRadioChip(
+                                        context: context,
+                                        isSelected:
+                                            !controller.stocksAvailable.value
+                                                ? true
+                                                : false,
+                                        label: 'Not Availabile',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: 10.h),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: buildOutlinedTextField(
+                                      context: context,
+                                      controller:
+                                          controller.salePriceController,
+                                      hintText: 'Sale Price',
+                                    ),
+                                  ),
+                                  SizedBox(width: 10.w),
+                                  Expanded(
+                                    child: buildOutlinedTextField(
+                                      context: context,
+                                      controller:
+                                          controller.offerPriceController,
+                                      hintText: 'Offer Price',
+                                    ),
+                                  ),
+                                  SizedBox(width: 10.w),
+                                  Expanded(
+                                    child: buildOutlinedTextField(
+                                      context: context,
+                                      controller:
+                                          controller.wholeSaleController,
+                                      hintText: 'Whole Sale',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 10.h),
+                              buildUploadImage(context),
+                              SizedBox(height: 24.h),
+                              buildSubmitButton(context),
+                              SizedBox(height: 24.h),
+                            ],
                           ),
-                          SizedBox(width: 10.w),
-                          Expanded(
-                            child: buildOutlinedTextField(
-                              context: context,
-                              controller: controller.offerPriceController,
-                              hintText: 'Offer Price',
-                            ),
-                          ),
-                          SizedBox(width: 10.w),
-                          Expanded(
-                            child: buildOutlinedTextField(
-                              context: context,
-                              controller: controller.wholeSaleController,
-                              hintText: 'Whole Sale',
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10.h),
-                      buildUploadImage(context),
-                      SizedBox(height: 24.h),
-                      buildSubmitButton(context),
-                      SizedBox(height: 24.h),
-                    ],
                   ),
                 ),
               ),
@@ -424,6 +435,7 @@ class AddNewProductPage extends GetView<AddProductController> {
     required TextEditingController controller,
   }) {
     return TextField(
+      controller: controller,
       maxLines: maxLines,
       decoration: InputDecoration(
         hintText: hintText,
@@ -484,11 +496,8 @@ class AddNewProductPage extends GetView<AddProductController> {
       ),
     );
   }
-}
 
-class _ScanOrSearchField extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
+  Widget buildScanOrSearchField(BuildContext context) {
     return Container(
       height: 56.h,
       decoration: BoxDecoration(
@@ -509,16 +518,22 @@ class _ScanOrSearchField extends StatelessWidget {
                   ),
             ),
           ),
-          Container(
-            margin: EdgeInsets.all(6.w),
-            width: 60.w,
-            decoration: BoxDecoration(
-              color: kcSecondaryColor,
-              borderRadius: BorderRadius.circular(kdBorderRadius),
-            ),
-            child: const Icon(
-              Icons.qr_code_scanner_rounded,
-              color: kcPrimaryColor,
+          GestureDetector(
+            onTap: () async {
+              Get.to(() => BarcodeScannerPage());
+              // BarcodeScannerPage();
+            },
+            child: Container(
+              margin: EdgeInsets.all(6.w),
+              width: 60.w,
+              decoration: BoxDecoration(
+                color: kcSecondaryColor,
+                borderRadius: BorderRadius.circular(kdBorderRadius),
+              ),
+              child: const Icon(
+                Icons.qr_code_scanner_rounded,
+                color: kcPrimaryColor,
+              ),
             ),
           ),
         ],
