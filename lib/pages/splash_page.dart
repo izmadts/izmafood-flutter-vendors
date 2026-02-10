@@ -75,7 +75,7 @@ class _SplashPageState extends State<SplashPage> {
         'assets/splash/animation.json',
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        fit: BoxFit.contain,
+        fit: BoxFit.cover,
         repeat: true,
         onLoaded: (composition) {
           // Animation loaded successfully
