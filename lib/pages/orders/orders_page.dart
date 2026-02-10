@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:izma_foods_vendor/config/theme.dart';
+import 'package:izma_foods_vendor/pages/finance/finance_page.dart';
 import 'package:izma_foods_vendor/pages/orders/order_details_page.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_app_bar.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_radial_gradient_container.dart';
@@ -19,9 +20,14 @@ class OrdersPage extends StatelessWidget {
                 title: "Orders",
                 showCustomActions: false,
               ),
-              Text(
-                "New Order",
-                style: Theme.of(context).textTheme.bodyLarge,
+              GestureDetector(
+                onTap: () => Get.to(
+                  () => FinancePage(),
+                ),
+                child: Text(
+                  "New Order",
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
               ),
               // Text(
               //   "Slide left ot check order status",

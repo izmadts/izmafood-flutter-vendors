@@ -261,13 +261,13 @@ class _FinancePageState extends State<FinancePage> {
           return itemDate == yesterday;
         case FinanceFilter.last7Days:
           final sevenDaysAgo = today.subtract(const Duration(days: 7));
-          return itemDate.isAfter(sevenDaysAgo.subtract(const Duration(days: 1))) &&
+          return itemDate
+                  .isAfter(sevenDaysAgo.subtract(const Duration(days: 1))) &&
               itemDate.isBefore(today.add(const Duration(days: 1)));
         case FinanceFilter.lastMonth:
-          final lastMonthStart =
-              DateTime(today.year, today.month - 1, 1);
-          final lastMonthEnd =
-              DateTime(today.year, today.month, 1).subtract(const Duration(days: 1));
+          final lastMonthStart = DateTime(today.year, today.month - 1, 1);
+          final lastMonthEnd = DateTime(today.year, today.month, 1)
+              .subtract(const Duration(days: 1));
           return itemDate.isAtSameMomentAs(lastMonthStart) ||
               (itemDate.isAfter(lastMonthStart) &&
                   itemDate.isBefore(lastMonthEnd.add(const Duration(days: 1))));
@@ -291,4 +291,3 @@ class _FinanceItem {
     required this.createdAt,
   });
 }
-

@@ -155,7 +155,7 @@ class AddNewProductPage extends GetView<AddProductController> {
       // width: ,
       height: 60,
       decoration: BoxDecoration(
-        color: kcSecondaryColor,
+        color: kcGreyColor,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Obx(
@@ -163,14 +163,14 @@ class AddNewProductPage extends GetView<AddProductController> {
           child: DropdownButton<attribute_model.Datum>(
             value: controller.selectedAttribute.value,
             isExpanded: true,
-            dropdownColor: kcSecondaryColor.withOpacity(0.9),
+            dropdownColor: kcGreyColor,
             iconEnabledColor: Colors.white,
             hint: Text(
               'Attributes',
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
-                  ?.copyWith(color: Colors.white70),
+                  ?.copyWith(color: Colors.black),
             ),
             items: controller.attributeListModel.value?.data
                     ?.map(
@@ -181,7 +181,13 @@ class AddNewProductPage extends GetView<AddProductController> {
                             controller.selectedAttributeValue.value =
                                 e.attributeTitle ?? '';
                           },
-                          child: Text(e.attributeTitle ?? ''),
+                          child: Text(
+                            e.attributeTitle ?? '',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(color: Colors.black),
+                          ),
                         ),
                       ),
                     )
@@ -195,9 +201,10 @@ class AddNewProductPage extends GetView<AddProductController> {
               }
             },
             isDense: true,
-            icon: const Icon(Icons.keyboard_arrow_down),
+            icon:
+                const Icon(Icons.keyboard_arrow_down, color: kcSecondaryColor),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.white,
+                  color: kcSecondaryColor,
                 ),
           ),
         ),
@@ -217,7 +224,7 @@ class AddNewProductPage extends GetView<AddProductController> {
                 // width: ,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: kcSecondaryColor,
+                  color: kcGreyColor,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Obx(
@@ -225,21 +232,27 @@ class AddNewProductPage extends GetView<AddProductController> {
                     child: DropdownButton<attribute_value_model.Datum>(
                       value: controller.selectedAttributeValueItem.value,
                       isExpanded: true,
-                      dropdownColor: kcSecondaryColor.withOpacity(0.9),
+                      dropdownColor: kcGreyColor,
                       iconEnabledColor: Colors.white,
                       hint: Text(
                         'Attributes',
                         style: Theme.of(context)
                             .textTheme
                             .bodySmall
-                            ?.copyWith(color: Colors.white70),
+                            ?.copyWith(color: Colors.black),
                       ),
                       items: controller.attributeValueListModel.value?.data
                               ?.map(
                                 (e) => DropdownMenuItem<
                                     attribute_value_model.Datum>(
                                   value: e,
-                                  child: Text(e.comment ?? ''),
+                                  child: Text(
+                                    e.comment ?? '',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(color: Colors.black),
+                                  ),
                                 ),
                               )
                               .toList() ??
@@ -250,9 +263,10 @@ class AddNewProductPage extends GetView<AddProductController> {
                         }
                       },
                       isDense: true,
-                      icon: const Icon(Icons.keyboard_arrow_down),
+                      icon: const Icon(Icons.keyboard_arrow_down,
+                          color: kcSecondaryColor),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.white,
+                            color: kcSecondaryColor,
                           ),
                     ),
                   ),
@@ -268,7 +282,7 @@ class AddNewProductPage extends GetView<AddProductController> {
         padding: EdgeInsets.symmetric(horizontal: 10),
         height: 60,
         decoration: BoxDecoration(
-          color: kcSecondaryColor,
+          color: kcGreyColor,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Obx(
@@ -277,20 +291,26 @@ class AddNewProductPage extends GetView<AddProductController> {
               value: controller.selectedCategory.value,
               // lighter kcSecondaryColor for dropdown menu
               isExpanded: true,
-              dropdownColor: kcSecondaryColor.withOpacity(0.9),
+              dropdownColor: kcGreyColor,
               iconEnabledColor: Colors.white,
               hint: Text(
                 'Select Category',
                 style: Theme.of(context)
                     .textTheme
                     .bodySmall
-                    ?.copyWith(color: Colors.white70),
+                    ?.copyWith(color: Colors.black),
               ),
               items: controller.categoryListModel.value?.subCategory
                   ?.map(
                     (brand) => DropdownMenuItem(
                       value: brand,
-                      child: Text(brand.title ?? ''),
+                      child: Text(
+                        brand.title ?? '',
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(color: Colors.black),
+                      ),
                     ),
                   )
                   .toList(),
@@ -300,10 +320,10 @@ class AddNewProductPage extends GetView<AddProductController> {
                 }
               },
               isDense: true,
-              icon: const Icon(Icons.keyboard_arrow_down),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white,
-                  ),
+              icon: const Icon(
+                Icons.keyboard_arrow_down,
+                color: kcSecondaryColor,
+              ),
             ),
           ),
         ),
@@ -318,7 +338,7 @@ class AddNewProductPage extends GetView<AddProductController> {
         // width: ,
         height: 60,
         decoration: BoxDecoration(
-          color: kcSecondaryColor,
+          color: kcGreyColor,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Obx(
@@ -326,20 +346,26 @@ class AddNewProductPage extends GetView<AddProductController> {
             child: DropdownButton<Datum>(
               value: controller.selectedBrand.value,
               isExpanded: true,
-              dropdownColor: kcSecondaryColor.withOpacity(0.9),
+              dropdownColor: kcGreyColor,
               iconEnabledColor: Colors.white,
               hint: Text(
                 'Select Brand',
                 style: Theme.of(context)
                     .textTheme
                     .bodySmall
-                    ?.copyWith(color: Colors.white70),
+                    ?.copyWith(color: Colors.black),
               ),
               items: controller.brandListModel.value?.data
                   ?.map(
                     (brand) => DropdownMenuItem(
                       value: brand,
-                      child: Text(brand.title ?? ''),
+                      child: Text(
+                        brand.title ?? '',
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(color: Colors.black),
+                      ),
                     ),
                   )
                   .toList(),
@@ -349,10 +375,10 @@ class AddNewProductPage extends GetView<AddProductController> {
                 }
               },
               isDense: true,
-              icon: const Icon(Icons.keyboard_arrow_down),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white,
-                  ),
+              icon: const Icon(
+                Icons.keyboard_arrow_down,
+                color: kcSecondaryColor,
+              ),
             ),
           ),
         ),
@@ -379,7 +405,8 @@ class AddNewProductPage extends GetView<AddProductController> {
         decoration: BoxDecoration(
           color: kcPrimaryColor,
           borderRadius: BorderRadius.circular(kdBorderRadius),
-          border: Border.all(color: kcSecondaryColor),
+          border:
+              Border.all(color: isSelected ? kcSecondaryColor : kcGreyColor),
         ),
         child: Row(
           children: [
@@ -387,7 +414,7 @@ class AddNewProductPage extends GetView<AddProductController> {
               isSelected
                   ? Icons.radio_button_checked_rounded
                   : Icons.radio_button_unchecked_rounded,
-              color: kcSecondaryColor,
+              color: isSelected ? kcSecondaryColor : kcGreyColor,
             ),
             SizedBox(width: 8.w),
             Expanded(
@@ -447,7 +474,7 @@ class AddNewProductPage extends GetView<AddProductController> {
         contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(kdBorderRadius),
-          borderSide: const BorderSide(color: kcSecondaryColor),
+          borderSide: const BorderSide(color: kcGreyColor),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(kdBorderRadius),
@@ -467,7 +494,7 @@ class AddNewProductPage extends GetView<AddProductController> {
         decoration: BoxDecoration(
           color: kcPrimaryColor,
           borderRadius: BorderRadius.circular(kdBorderRadius),
-          border: Border.all(color: kcSecondaryColor),
+          border: Border.all(color: kcGreyColor),
         ),
         padding: EdgeInsets.symmetric(horizontal: 14.w),
         child: Row(
@@ -502,7 +529,7 @@ class AddNewProductPage extends GetView<AddProductController> {
       height: 56.h,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(kdBorderRadius),
-        border: Border.all(color: kcSecondaryColor),
+        border: Border.all(color: kcGreyColor),
         color: kcPrimaryColor,
       ),
       child: Row(

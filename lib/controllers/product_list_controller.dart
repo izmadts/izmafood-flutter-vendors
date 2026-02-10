@@ -69,8 +69,18 @@ class ProductListController extends GetxController {
         method: Method.GET,
       );
       productListModel.value = ProductListModel.fromJson(response.data);
+      final originalList = productListModel.value?.data?.data ?? [];
+      originalList.sort((a, b) {
+        final aIsOne = a.isAdded == '1';
+        final bIsOne = b.isAdded == '1';
+
+        if (aIsOne == bIsOne) return 0;
+        return aIsOne ? -1 : 1;
+      });
+
       if (productListModel.value?.status == true) {
-        for (var element in productListModel.value?.data?.data ?? []) {
+        listOfTextEditingControllers.clear();
+        for (var element in originalList) {
           listOfTextEditingControllers
               .add(TextEditingController(text: element.rprice ?? '0'));
         }
@@ -105,7 +115,7 @@ class ProductListController extends GetxController {
       newBaseModel.value = NewBaseModel.fromJson(response.data);
       if (newBaseModel.value?.status == true) {
         showSnackBar('Product added successfully');
-        getProductList(selectedCategory.value?.id);
+      await  getProductList(selectedCategory.value?.id);
       } else {
         throw APIException(
           message: 'Failed to add product',

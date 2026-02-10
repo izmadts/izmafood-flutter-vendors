@@ -6,7 +6,6 @@ import 'package:izma_foods_vendor/helpers/global_helpers.dart';
 import 'package:izma_foods_vendor/pages/products/add_new_product.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_app_bar.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_radial_gradient_container.dart';
-import 'package:izma_foods_vendor/pages/widget/izma_text_field.dart';
 
 class ProductsPage extends GetView<ProductListController> {
   ProductsPage({super.key});
@@ -52,14 +51,14 @@ class ProductsPage extends GetView<ProductListController> {
                         physics: const BouncingScrollPhysics(),
                         itemBuilder: (context, index) {
                           return GestureDetector(
-                            onTap: () {
+                            onTap: () async {
                               controller.selectedCategoryLoading.value = true;
 
                               controller.selectedCategory.value = controller
                                   .categoriesModel.value?.subCategory?[index];
 
                               // Calling the api to get the product list
-                              controller.getProductList(
+                              await controller.getProductList(
                                 controller.categoriesModel.value
                                     ?.subCategory?[index].id,
                               );
@@ -113,13 +112,12 @@ class ProductsPage extends GetView<ProductListController> {
               padding: EdgeInsets.symmetric(horizontal: kdPadding),
               child: TextField(
                 controller: controller.searchController,
-                onChanged: (value) {
+                onChanged: (value) async {
                   if (value.trim().isNotEmpty) {
-                    controller.searchProduct(
-                        value.trim(), controller.selectedCategory.value?.id ?? 0);
-                  }
-                  else {
-                    controller.getProductList(
+                    controller.searchProduct(value.trim(),
+                        controller.selectedCategory.value?.id ?? 0);
+                  } else {
+                    await controller.getProductList(
                         controller.selectedCategory.value?.id ?? 0);
                   }
                 },
