@@ -84,7 +84,7 @@ class APIHelper {
             await GetStorage().erase();
 
             // redirect to login using GetX
-            Get.offAll(() => const SplashPage());
+            Get.offAll(() => SplashPage());
           }
 
           return handler.next(err);

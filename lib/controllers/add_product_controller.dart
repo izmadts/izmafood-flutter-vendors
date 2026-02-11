@@ -40,6 +40,8 @@ class AddProductController extends GetxController {
   final salePriceController = TextEditingController();
   final offerPriceController = TextEditingController();
   final wholeSaleController = TextEditingController();
+  final listOfPrice = RxList<TextEditingController>();
+  final listOfStock = RxList<TextEditingController>();
   onInit() {
     super.onInit();
     getBrandList();
@@ -134,6 +136,8 @@ class AddProductController extends GetxController {
 
   Future<void> attributeValue(attribute_model.Datum value) async {
     var token = await LocalStorageHelper.getAuthInfoFromStorage();
+    listOfPrice.clear();
+    listOfStock.clear();
     try {
       isAttributeSelected(true);
       final response = await APIHelper().request(
@@ -144,6 +148,10 @@ class AddProductController extends GetxController {
       attributeValueListModel.value =
           attribute_value_model.AttributeValueModel.fromJson(response.data);
       if (attributeValueListModel.value?.status == true) {
+        for (var element in attributeValueListModel.value?.data ?? []) {
+          listOfPrice.add(TextEditingController());
+          listOfStock.add(TextEditingController());
+        }
         isAttributeSelected(false);
         showSnackBar('Attribute value list fetched successfully');
       } else {
@@ -222,24 +230,24 @@ class AddProductController extends GetxController {
       };
       print('formDataMap: ${jsonEncode(formDataMap)}');
       // Add photo as MultipartFile if image is selected
-     
-        if (productImageFile.value != null) {
-          formDataMap['photo'] = await dio.MultipartFile.fromFile(
-            productImageFile.value!.path,
-            filename: productImageFile.value!.path.split('/').last,
-          );
-        }
 
-        dio.FormData formData = dio.FormData.fromMap(formDataMap);
-
-        final response = await APIHelper().request(
-          url: 'seller/product/create',
-          method: Method.POST,
-          token: token?['token'],
-          params: {
-            'image': image.path,
-          },
+      if (productImageFile.value != null) {
+        formDataMap['photo'] = await dio.MultipartFile.fromFile(
+          productImageFile.value!.path,
+          filename: productImageFile.value!.path.split('/').last,
         );
+      }
+
+      dio.FormData formData = dio.FormData.fromMap(formDataMap);
+
+      final response = await APIHelper().request(
+        url: 'seller/product/create',
+        method: Method.POST,
+        token: token?['token'],
+        params: {
+          'image': image.path,
+        },
+      );
       return response.data;
     } catch (e) {
       handleControllerExceptions(e);

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:izma_foods_vendor/config/theme.dart';
-import 'package:izma_foods_vendor/controllers/auth_controller.dart';
 import 'package:izma_foods_vendor/controllers/dash_board_controller.dart';
+import 'package:izma_foods_vendor/controllers/splash_controller.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_app_bar.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_radial_gradient_container.dart';
 
@@ -30,12 +30,13 @@ class HomePage extends GetView<DashBoardController> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                            "${Get.find<AuthController>().loginModel.value?.data?.user?.shop?.accountName} Store",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(fontWeight: FontWeight.w600)),
+                        Obx(
+                          () => Text("${controller.shopName.value} Store",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w600)),
+                        ),
                         Text("Gulgasht Branch Multan",
                             style: Theme.of(context)
                                 .textTheme

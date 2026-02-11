@@ -219,59 +219,105 @@ class AddNewProductPage extends GetView<AddProductController> {
           : Visibility(
               visible: controller.selectedAttribute.value != null &&
                   controller.selectedAttributeValue.value != '',
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                // width: ,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: kcGreyColor,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Obx(
-                  () => DropdownButtonHideUnderline(
-                    child: DropdownButton<attribute_value_model.Datum>(
-                      value: controller.selectedAttributeValueItem.value,
-                      isExpanded: true,
-                      dropdownColor: kcGreyColor,
-                      iconEnabledColor: Colors.white,
-                      hint: Text(
-                        'Attributes',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(color: Colors.black),
-                      ),
-                      items: controller.attributeValueListModel.value?.data
-                              ?.map(
-                                (e) => DropdownMenuItem<
-                                    attribute_value_model.Datum>(
-                                  value: e,
-                                  child: Text(
-                                    e.comment ?? '',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
-                                        ?.copyWith(color: Colors.black),
-                                  ),
-                                ),
-                              )
-                              .toList() ??
-                          [],
-                      onChanged: (value) {
-                        if (value != null) {
-                          controller.selectedAttributeValueItem.value = value;
-                        }
-                      },
-                      isDense: true,
-                      icon: const Icon(Icons.keyboard_arrow_down,
-                          color: kcSecondaryColor),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: kcSecondaryColor,
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount:
+                    controller.attributeValueListModel.value?.data?.length ?? 0,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Container(
+                          // height: 40,
+                          width: 100,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: kcGreyColor,
+                            borderRadius: BorderRadius.circular(10),
                           ),
+                          child: Text(
+                            controller.attributeValueListModel.value
+                                    ?.data?[index].comment ??
+                                '',
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: buildOutlinedTextField(
+                            context: context,
+                            controller: controller.listOfPrice[index],
+                            hintText: 'Price',
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: buildOutlinedTextField(
+                            context: context,
+                            controller: controller.listOfStock[index],
+                            hintText: 'Stock',
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
+
+              // Container(
+              //   padding: EdgeInsets.symmetric(horizontal: 10),
+              //   // width: ,
+              //   height: 60,
+              //   decoration: BoxDecoration(
+              //     color: kcGreyColor,
+              //     borderRadius: BorderRadius.circular(10),
+              //   ),
+              //   child: Obx(
+              //     () => DropdownButtonHideUnderline(
+              //       child: DropdownButton<attribute_value_model.Datum>(
+              //         value: controller.selectedAttributeValueItem.value,
+              //         isExpanded: true,
+              //         dropdownColor: kcGreyColor,
+              //         iconEnabledColor: Colors.white,
+              //         hint: Text(
+              //           'Attributes',
+              //           style: Theme.of(context)
+              //               .textTheme
+              //               .bodySmall
+              //               ?.copyWith(color: Colors.black),
+              //         ),
+              //         items: controller.attributeValueListModel.value?.data
+              //                 ?.map(
+              //                   (e) => DropdownMenuItem<
+              //                       attribute_value_model.Datum>(
+              //                     value: e,
+              //                     child: Text(
+              //                       e.comment ?? '',
+              //                       style: Theme.of(context)
+              //                           .textTheme
+              //                           .bodySmall
+              //                           ?.copyWith(color: Colors.black),
+              //                     ),
+              //                   ),
+              //                 )
+              //                 .toList() ??
+              //             [],
+              //         onChanged: (value) {
+              //           if (value != null) {
+              //             controller.selectedAttributeValueItem.value = value;
+              //           }
+              //         },
+              //         isDense: true,
+              //         icon: const Icon(Icons.keyboard_arrow_down,
+              //             color: kcSecondaryColor),
+              //         style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              //               color: kcSecondaryColor,
+              //             ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ),
     );
   }
