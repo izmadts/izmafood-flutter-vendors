@@ -19,7 +19,7 @@ import 'package:izma_foods_vendor/models/category_model.dart';
 // import 'package:izma_foods_vendor/models/product_list_model.dart'
 //     as product_list_model;
 
-class AddProductController extends GetxController {
+class EditProductController extends GetxController {
   final ImagePicker imagePicker = ImagePicker();
   final productImageFile = Rxn<File>();
   final brandListModel = Rxn<BrandListModel>();
@@ -44,7 +44,6 @@ class AddProductController extends GetxController {
   final listOfPrice = RxList<TextEditingController>();
   final listOfStock = RxList<TextEditingController>();
   final splashController = Get.find<SplashController>();
-  final listIdsForAttributes = RxList<int>();
   onInit() {
     super.onInit();
     getBrandList();
@@ -141,7 +140,6 @@ class AddProductController extends GetxController {
     var token = await LocalStorageHelper.getAuthInfoFromStorage();
     listOfPrice.clear();
     listOfStock.clear();
-    listIdsForAttributes.clear();
     try {
       isAttributeSelected(true);
       final response = await APIHelper().request(
@@ -155,9 +153,6 @@ class AddProductController extends GetxController {
         for (var element in attributeValueListModel.value?.data ?? []) {
           listOfPrice.add(TextEditingController());
           listOfStock.add(TextEditingController());
-          if (element.id != null) {
-            listIdsForAttributes.add(element.id!);
-          }
         }
         isAttributeSelected(false);
         showSnackBar('Attribute value list fetched successfully');
@@ -223,6 +218,44 @@ class AddProductController extends GetxController {
     }
   }
 
+  Future<void> uploadProductImage({
+    required File image,
+  }) async {
+    var token = await LocalStorageHelper.getAuthInfoFromStorage();
+    try {
+      Map<String, dynamic> formDataMap = {
+        // 'product_name': productTitleController.text.trim(),
+        // 'product_description': productDescriptionController.text.trim(),
+        // 'sale_price': salePriceController.text.trim(),
+        // 'offer_price': offerPriceController.text.trim(),
+        // 'whole_sale': wholeSaleController.text.trim(),
+      };
+      print('formDataMap: ${jsonEncode(formDataMap)}');
+      // Add photo as MultipartFile if image is selected
+
+      if (productImageFile.value != null) {
+        formDataMap['photo'] = await dio.MultipartFile.fromFile(
+          productImageFile.value!.path,
+          filename: productImageFile.value!.path.split('/').last,
+        );
+      }
+
+      dio.FormData formData = dio.FormData.fromMap(formDataMap);
+
+      final response = await APIHelper().request(
+        url: 'seller/product/create',
+        method: Method.POST,
+        token: token?['token'],
+        params: {
+          'image': image.path,
+        },
+      );
+      return response.data;
+    } catch (e) {
+      handleControllerExceptions(e);
+    }
+  }
+
   Future<void> createProduct() async {
     var token = await LocalStorageHelper.getAuthInfoFromStorage();
     var errorMessage = isValidate();
@@ -231,82 +264,54 @@ class AddProductController extends GetxController {
       return;
     } else {
       try {
-        isLoading(true);
-        final attributeData = attributeValueListModel.value?.data ?? [];
-        var variantCount = attributeData.length;
-        if (listIdsForAttributes.length < variantCount) {
-          variantCount = listIdsForAttributes.length;
-        }
-        if (listOfPrice.length < variantCount) {
-          variantCount = listOfPrice.length;
-        }
-        if (listOfStock.length < variantCount) {
-          variantCount = listOfStock.length;
-        }
-
-        final variantIds = <String>[];
-        final variantValues = <String>[];
-        final variantPrices = <String>[];
-        final variantStocks = <String>[];
-
-        for (var i = 0; i < variantCount; i++) {
-          variantIds.add(selectedAttributeValue.value.toString());
-          variantValues.add(attributeData[i].comment ?? '');
-
-          final priceText = listOfPrice[i].text.trim();
-          variantPrices.add(priceText.isEmpty ? '0' : priceText);
-
-          final stockText = listOfStock[i].text.trim();
-          variantStocks.add(stockText.isEmpty ? '0' : stockText);
-        }
-
-        final hasVariants = variantIds.isNotEmpty;
-
+        // isLoading(true);
         Map<String, dynamic> formDataMap = {
           'title': productTitleController.text.trim(),
-          'stock': stocksAvailable.value ? '3' : '5',
+          'stock': stocksAvailable.value ? '1' : '0',
           'subcategory': selectedCategory.value?.id,
           'cat_id':
               splashController.userInfoModel.value?.data?.shop?.shopCategory,
           'rprice': offerPriceController.text.trim(),
           'sprice': salePriceController.text.trim(),
           'wprice': wholeSaleController.text.trim(),
-          'variable_product': hasVariants ? '1' : '0',
+          'variable_product': selectedAttributeValue.isNotEmpty ? '1' : '0',
+          'add_produt_id': selectedAttributeValue.isEmpty
+              ? '0'
+              : selectedAttributeValue.value.toString().toLowerCase() == 'size'
+                  ? '1'
+                  : '2',
+          'add_produt_value[]': ['medium', 'large', 'small'],
+          'price[]': ['1000', '1500', '1200'],
           'barcode': barCodeController.text.trim(),
           'summary': productDescriptionController.text.trim(),
           'is_featured': 'no',
+          'add_produt_id[]': [
+            '51',
+            '52',
+            '53',
+          ],
           'brand_id': selectedBrand.value?.id,
         };
-
-        if (hasVariants) {
-          formDataMap['add_produt_id'] = selectedAttributeValue.value;
-          formDataMap['add_produt_value[]'] = variantValues;
-          formDataMap['price[]'] = variantPrices;
-          formDataMap['quantity[]'] = variantStocks;
-          formDataMap['add_produt_id[]'] = variantIds;
-        }
         print('formDataMap: ${jsonEncode(formDataMap)}');
 
-        // Add photo as MultipartFile if image is selected
-        if (productImageFile.value != null) {
-          formDataMap['photo'] = await dio.MultipartFile.fromFile(
-            productImageFile.value!.path,
-            filename: productImageFile.value!.path.split('/').last,
-          );
-        }
+        // // Add photo as MultipartFile if image is selected
+        // if (productImageFile.value != null) {
+        //   formDataMap['photo'] = await dio.MultipartFile.fromFile(
+        //     productImageFile.value!.path,
+        //     filename: productImageFile.value!.path.split('/').last,
+        //   );
+        // }
 
-        dio.FormData formData = dio.FormData.fromMap(formDataMap);
+        // dio.FormData formData = dio.FormData.fromMap(formDataMap);
 
-        final response = await APIHelper().request(
-          url: 'seller/product/create',
-          method: Method.POST,
-          token: token?['token'],
-          params: formData,
-        );
-        print('response create product: ${response.data}');
-        isLoading(false);
+        // final response = await APIHelper().request(
+        //   url: 'seller/product/create',
+        //   method: Method.POST,
+        //   token: token?['token'],
+        //   params: formData,
+        // );
+        // print('response create product: ${response.data}');
       } catch (e) {
-        isLoading(false);
         print('error create product: ${e.toString()}');
         // handleControllerExceptions(e);
       }

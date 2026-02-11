@@ -197,6 +197,8 @@ class AddNewProductPage extends GetView<AddProductController> {
               if (value != null) {
                 controller.selectedAttribute.value = value;
                 controller.selectedAttributeValue.value = value.id.toString();
+                print(
+                    'selectedAttributeValue: ${controller.selectedAttributeValue.value}');
                 controller.attributeValue(value);
               }
             },
@@ -480,7 +482,9 @@ class AddNewProductPage extends GetView<AddProductController> {
       width: double.infinity,
       height: 56.h,
       child: ElevatedButton.icon(
-        onPressed: () {},
+        onPressed: () {
+          controller.createProduct();
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: kcSecondaryColor,
           shape: RoundedRectangleBorder(
