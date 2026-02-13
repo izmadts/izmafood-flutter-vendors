@@ -2,20 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:izma_foods_vendor/config/theme.dart';
-import 'package:izma_foods_vendor/controllers/add_product_controller.dart';
+import 'package:izma_foods_vendor/controllers/edit_product_controller.dart';
+import 'package:izma_foods_vendor/helpers/global_helpers.dart';
 import 'package:izma_foods_vendor/models/brands_list_model.dart';
 import 'package:izma_foods_vendor/models/category_model.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_app_bar.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_radial_gradient_container.dart';
 import 'package:izma_foods_vendor/models/attribute_model.dart'
     as attribute_model;
-import 'package:izma_foods_vendor/models/attribute_value_model.dart'
-    as attribute_value_model;
 import 'package:izma_foods_vendor/pages/products/barcode_scanner_page.dart';
 
-class AddNewProductPage extends GetView<AddProductController> {
-  AddNewProductPage({super.key});
-  final controller = Get.put(AddProductController());
+class EditProductPage extends GetView<EditProductController> {
+  EditProductPage({super.key});
+  final controller = Get.put(EditProductController());
 
   @override
   Widget build(BuildContext context) {
@@ -150,64 +149,67 @@ class AddNewProductPage extends GetView<AddProductController> {
   }
 
   Widget attributes(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10),
-      // width: ,
-      height: 60,
-      decoration: BoxDecoration(
-        color: kcGreyColor,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Obx(
-        () => DropdownButtonHideUnderline(
-          child: DropdownButton<attribute_model.Datum>(
-            value: controller.selectedAttribute.value,
-            isExpanded: true,
-            dropdownColor: kcGreyColor,
-            iconEnabledColor: Colors.white,
-            hint: Text(
-              'Attributes',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: Colors.black),
-            ),
-            items: controller.attributeListModel.value?.data
-                    ?.map(
-                      (e) => DropdownMenuItem<attribute_model.Datum>(
-                        value: e,
-                        child: GestureDetector(
-                          onTap: () {
-                            controller.selectedAttributeValue.value =
-                                e.attributeTitle ?? '';
-                          },
-                          child: Text(
-                            e.attributeTitle ?? '',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(color: Colors.black),
+    return AbsorbPointer(
+      absorbing: true,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        // width: ,
+        height: 60,
+        decoration: BoxDecoration(
+          color: kcGreyColor,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Obx(
+          () => DropdownButtonHideUnderline(
+            child: DropdownButton<attribute_model.Datum>(
+              value: controller.selectedAttribute.value,
+              isExpanded: true,
+              dropdownColor: kcGreyColor,
+              iconEnabledColor: Colors.white,
+              hint: Text(
+                'Attributes',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: Colors.black),
+              ),
+              items: controller.attributeListModel.value?.data
+                      ?.map(
+                        (e) => DropdownMenuItem<attribute_model.Datum>(
+                          value: e,
+                          child: GestureDetector(
+                            onTap: () {
+                              controller.selectedAttributeValue.value =
+                                  e.attributeTitle ?? '';
+                            },
+                            child: Text(
+                              e.attributeTitle ?? '',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(color: Colors.black),
+                            ),
                           ),
                         ),
-                      ),
-                    )
-                    .toList() ??
-                [],
-            onChanged: (value) {
-              if (value != null) {
-                controller.selectedAttribute.value = value;
-                controller.selectedAttributeValue.value = value.id.toString();
-                print(
-                    'selectedAttributeValue: ${controller.selectedAttributeValue.value}');
-                controller.attributeValue(value);
-              }
-            },
-            isDense: true,
-            icon:
-                const Icon(Icons.keyboard_arrow_down, color: kcSecondaryColor),
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: kcSecondaryColor,
-                ),
+                      )
+                      .toList() ??
+                  [],
+              onChanged: (value) {
+                if (value != null) {
+                  controller.selectedAttribute.value = value;
+                  controller.selectedAttributeValue.value = value.id.toString();
+                  print(
+                      'selectedAttributeValue: ${controller.selectedAttributeValue.value}');
+                  controller.attributeValue(value);
+                }
+              },
+              isDense: true,
+              icon: const Icon(Icons.keyboard_arrow_down,
+                  color: kcSecondaryColor),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: kcSecondaryColor,
+                  ),
+            ),
           ),
         ),
       ),
@@ -326,51 +328,54 @@ class AddNewProductPage extends GetView<AddProductController> {
 
   Expanded selectCategory(BuildContext context) {
     return Expanded(
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        height: 60,
-        decoration: BoxDecoration(
-          color: kcGreyColor,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Obx(
-          () => DropdownButtonHideUnderline(
-            child: DropdownButton<SubCategory>(
-              value: controller.selectedCategory.value,
-              // lighter kcSecondaryColor for dropdown menu
-              isExpanded: true,
-              dropdownColor: kcGreyColor,
-              iconEnabledColor: Colors.white,
-              hint: Text(
-                'Select Category',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(color: Colors.black),
-              ),
-              items: controller.categoryListModel.value?.subCategory
-                  ?.map(
-                    (brand) => DropdownMenuItem(
-                      value: brand,
-                      child: Text(
-                        brand.title ?? '',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(color: Colors.black),
+      child: AbsorbPointer(
+        absorbing: true,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          height: 60,
+          decoration: BoxDecoration(
+            color: kcGreyColor,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Obx(
+            () => DropdownButtonHideUnderline(
+              child: DropdownButton<SubCategory>(
+                value: controller.selectedCategory.value,
+                // lighter kcSecondaryColor for dropdown menu
+                isExpanded: true,
+                dropdownColor: kcGreyColor,
+                iconEnabledColor: Colors.white,
+                hint: Text(
+                  'Select Category',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: Colors.black),
+                ),
+                items: controller.categoryListModel.value?.subCategory
+                    ?.map(
+                      (brand) => DropdownMenuItem(
+                        value: brand,
+                        child: Text(
+                          brand.title ?? '',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(color: Colors.black),
+                        ),
                       ),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  controller.selectedCategory.value = value;
-                }
-              },
-              isDense: true,
-              icon: const Icon(
-                Icons.keyboard_arrow_down,
-                color: kcSecondaryColor,
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    controller.selectedCategory.value = value;
+                  }
+                },
+                isDense: true,
+                icon: const Icon(
+                  Icons.keyboard_arrow_down,
+                  color: kcSecondaryColor,
+                ),
               ),
             ),
           ),
@@ -381,51 +386,55 @@ class AddNewProductPage extends GetView<AddProductController> {
 
   Expanded selectBrand(BuildContext context) {
     return Expanded(
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        // width: ,
-        height: 60,
-        decoration: BoxDecoration(
-          color: kcGreyColor,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Obx(
-          () => DropdownButtonHideUnderline(
-            child: DropdownButton<Datum>(
-              value: controller.selectedBrand.value,
-              isExpanded: true,
-              dropdownColor: kcGreyColor,
-              iconEnabledColor: Colors.white,
-              hint: Text(
-                'Select Brand',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(color: Colors.black),
-              ),
-              items: controller.brandListModel.value?.data
-                  ?.map(
-                    (brand) => DropdownMenuItem(
-                      value: brand,
-                      child: Text(
-                        brand.title ?? '',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(color: Colors.black),
+      child: AbsorbPointer(
+        absorbing: true,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          // width: ,
+          height: 60,
+          decoration: BoxDecoration(
+            color: kcGreyColor,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Obx(
+            () => DropdownButtonHideUnderline(
+              child: DropdownButton<Datum>(
+                enableFeedback: false,
+                value: controller.selectedBrand.value,
+                isExpanded: true,
+                dropdownColor: kcGreyColor,
+                iconEnabledColor: Colors.white,
+                hint: Text(
+                  'Select Brand',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: Colors.black),
+                ),
+                items: controller.brandListModel.value?.data
+                    ?.map(
+                      (brand) => DropdownMenuItem(
+                        value: brand,
+                        child: Text(
+                          brand.title ?? '',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(color: Colors.black),
+                        ),
                       ),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  controller.selectedBrand.value = value;
-                }
-              },
-              isDense: true,
-              icon: const Icon(
-                Icons.keyboard_arrow_down,
-                color: kcSecondaryColor,
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    controller.selectedBrand.value = value;
+                  }
+                },
+                isDense: true,
+                icon: const Icon(
+                  Icons.keyboard_arrow_down,
+                  color: kcSecondaryColor,
+                ),
               ),
             ),
           ),
@@ -486,7 +495,7 @@ class AddNewProductPage extends GetView<AddProductController> {
               ? const Center(child: CircularProgressIndicator())
               : ElevatedButton.icon(
                   onPressed: () {
-                    controller.createProduct();
+                    controller.updateProduct();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: kcSecondaryColor,
@@ -538,41 +547,75 @@ class AddNewProductPage extends GetView<AddProductController> {
   }
 
   Widget buildUploadImage(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        controller.showShopImageSourceDialog();
-      },
-      child: Container(
-        height: 56.h,
-        decoration: BoxDecoration(
-          color: kcPrimaryColor,
-          borderRadius: BorderRadius.circular(kdBorderRadius),
-          border: Border.all(color: kcGreyColor),
-        ),
-        padding: EdgeInsets.symmetric(horizontal: 14.w),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                'Upload Product Image',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: kcTextGreyColor,
+    return Obx(
+      () {
+        final hasImage = controller.productImageFile.value != null;
+        final hasPhotoUrl = controller.productPhotoUrl.value.isNotEmpty;
+        return GestureDetector(
+          onTap: () {
+            controller.showShopImageSourceDialog();
+          },
+          child: Container(
+            height: 56.h,
+            decoration: BoxDecoration(
+              color: kcPrimaryColor,
+              borderRadius: BorderRadius.circular(kdBorderRadius),
+              border: Border.all(color: kcGreyColor),
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 14.w),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    hasImage || hasPhotoUrl
+                        ? 'Change Product Image'
+                        : 'Upload Product Image',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: kcTextGreyColor,
+                        ),
+                  ),
+                ),
+                if (hasImage)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(kdBorderRadius),
+                    child: Image.file(
+                      controller.productImageFile.value!,
+                      width: 46.w,
+                      height: 46.w,
+                      fit: BoxFit.cover,
                     ),
-              ),
+                  )
+                else if (hasPhotoUrl)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(kdBorderRadius),
+                    child: Image.network(
+                      productImageUrl(controller.productPhotoUrl.value),
+                      width: 46.w,
+                      height: 46.w,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _buildImagePlaceholder(),
+                    ),
+                  )
+                else
+                  _buildImagePlaceholder(),
+              ],
             ),
-            Container(
-              width: 46.w,
-              decoration: BoxDecoration(
-                color: kcSecondaryColor,
-                borderRadius: BorderRadius.circular(kdBorderRadius),
-              ),
-              child: const Icon(
-                Icons.image_outlined,
-                color: kcPrimaryColor,
-              ),
-            ),
-          ],
-        ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildImagePlaceholder() {
+    return Container(
+      width: 46.w,
+      decoration: BoxDecoration(
+        color: kcSecondaryColor,
+        borderRadius: BorderRadius.circular(kdBorderRadius),
+      ),
+      child: const Icon(
+        Icons.image_outlined,
+        color: kcPrimaryColor,
       ),
     );
   }

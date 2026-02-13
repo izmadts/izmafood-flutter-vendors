@@ -10,12 +10,14 @@ import 'package:izma_foods_vendor/controllers/splash_controller.dart';
 import 'package:izma_foods_vendor/helpers/api_exception.dart';
 import 'package:izma_foods_vendor/helpers/api_helper.dart';
 import 'package:izma_foods_vendor/helpers/global_helpers.dart';
+import 'package:izma_foods_vendor/models/add_product_model.dart';
 import 'package:izma_foods_vendor/models/attribute_model.dart'
     as attribute_model;
 import 'package:izma_foods_vendor/models/attribute_value_model.dart'
     as attribute_value_model;
 import 'package:izma_foods_vendor/models/brands_list_model.dart';
 import 'package:izma_foods_vendor/models/category_model.dart';
+import 'package:izma_foods_vendor/models/edit_product_model.dart';
 // import 'package:izma_foods_vendor/models/product_list_model.dart'
 //     as product_list_model;
 
@@ -44,11 +46,141 @@ class EditProductController extends GetxController {
   final listOfPrice = RxList<TextEditingController>();
   final listOfStock = RxList<TextEditingController>();
   final splashController = Get.find<SplashController>();
+  final productId = 0.obs;
+  final arguments = Get.arguments;
+  final isProductAdded = false.obs;
+  final productAddedModel = Rxn<ProductAddedModel>();
+  final listIdsForAttributes = RxList<int>();
+  final productEditModel = Rxn<ProductEditModel>();
+  final productPhotoUrl = ''.obs;
+
   onInit() {
     super.onInit();
-    getBrandList();
-    getCategories();
-    getAddOns();
+    productId.value = arguments?['productId'] ?? 0;
+    print('productId: ${productId.value}');
+    _loadEditData();
+  }
+
+  Future<void> _loadEditData() async {
+    isLoading(true);
+    try {
+      await Future.wait<void>([
+        getProductDetails(),
+        getBrandList(),
+        getCategories(),
+        getAddOns(),
+      ]);
+      assignEditDataToForm();
+    } catch (e) {
+      handleControllerExceptions(e);
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  getProductDetails() async {
+    final token = await LocalStorageHelper.getAuthInfoFromStorage();
+    try {
+      final response = await APIHelper().request(
+        method: Method.GET,
+        url: 'seller/product/${productId.value}',
+        token: token?['token'],
+      );
+      final resData = response.data;
+      if (resData is Map<String, dynamic>) {
+        productEditModel.value = ProductEditModel.fromJson(resData);
+      }
+      if (productEditModel.value?.status != true) {
+        throw APIException(
+          message: 'Failed to fetch product details',
+          statusCode: response.statusCode ?? 500,
+        );
+      }
+    } catch (e) {
+      handleControllerExceptions(e);
+      rethrow;
+    }
+  }
+
+  Future<void> assignEditDataToForm() async {
+    final data = productEditModel.value?.data;
+    if (data == null) return;
+
+    barCodeController.text = data.barcode ?? '';
+    productTitleController.text = data.title ?? '';
+    productDescriptionController.text = data.summary ?? '';
+    salePriceController.text = data.sprice ?? '';
+    offerPriceController.text = data.rprice ?? '';
+    wholeSaleController.text = data.wprice ?? '';
+
+    final stockVal = data.stockAvailable;
+    stocksAvailable.value = stockVal == '1' ||
+        stockVal == 1 ||
+        stockVal == true ||
+        stockVal == 'true';
+
+    productPhotoUrl.value = data.photo ?? '';
+
+    final brandId = data.brandId;
+    if (brandId != null && brandListModel.value?.data != null) {
+      for (final b in brandListModel.value!.data!) {
+        if (b.id.toString() == brandId.toString()) {
+          selectedBrand.value = b;
+          break;
+        }
+      }
+    }
+
+    final subCatId = data.subCatId;
+    if (subCatId != null && categoryListModel.value?.subCategory != null) {
+      for (final c in categoryListModel.value!.subCategory!) {
+        if (c.id.toString() == subCatId.toString()) {
+          selectedCategory.value = c;
+          break;
+        }
+      }
+    }
+
+    if (data.variableProduct == '1' &&
+        (data.attributePrices?.isNotEmpty ?? false)) {
+      await _assignAttributeData(data);
+    }
+  }
+
+  Future<void> _assignAttributeData(Data data) async {
+    final firstAttr = data.attributePrices!.first;
+    final attrId = firstAttr.attributeId;
+    if (attrId == null || attributeListModel.value?.data == null) return;
+
+    attribute_model.Datum? attribute;
+    for (final a in attributeListModel.value!.data!) {
+      if (a.id.toString() == attrId.toString()) {
+        attribute = a;
+        break;
+      }
+    }
+    if (attribute == null) return;
+
+    selectedAttribute.value = attribute;
+    selectedAttributeValue.value = attribute.id.toString();
+    await attributeValue(attribute);
+
+    final attrPrices = data.attributePrices!;
+    final attrValues = attributeValueListModel.value?.data ?? [];
+    for (var i = 0;
+        i < attrValues.length &&
+            i < listOfPrice.length &&
+            i < listOfStock.length;
+        i++) {
+      final valComment = (attrValues[i].comment ?? '').toLowerCase();
+      for (final ap in attrPrices) {
+        if ((ap.attributeVlue ?? '').toString().toLowerCase() == valComment) {
+          listOfPrice[i].text = ap.price ?? '0';
+          listOfStock[i].text = ap.quantity ?? '0';
+          break;
+        }
+      }
+    }
   }
 
   getBrandList() async {
@@ -140,6 +272,7 @@ class EditProductController extends GetxController {
     var token = await LocalStorageHelper.getAuthInfoFromStorage();
     listOfPrice.clear();
     listOfStock.clear();
+    listIdsForAttributes.clear();
     try {
       isAttributeSelected(true);
       final response = await APIHelper().request(
@@ -153,6 +286,7 @@ class EditProductController extends GetxController {
         for (var element in attributeValueListModel.value?.data ?? []) {
           listOfPrice.add(TextEditingController());
           listOfStock.add(TextEditingController());
+          if (element.id != null) listIdsForAttributes.add(element.id!);
         }
         isAttributeSelected(false);
         showSnackBar('Attribute value list fetched successfully');
@@ -240,15 +374,11 @@ class EditProductController extends GetxController {
         );
       }
 
-      dio.FormData formData = dio.FormData.fromMap(formDataMap);
-
       final response = await APIHelper().request(
         url: 'seller/product/create',
         method: Method.POST,
         token: token?['token'],
-        params: {
-          'image': image.path,
-        },
+        params: {'image': image.path},
       );
       return response.data;
     } catch (e) {
@@ -256,7 +386,7 @@ class EditProductController extends GetxController {
     }
   }
 
-  Future<void> createProduct() async {
+  Future<void> updateProduct() async {
     var token = await LocalStorageHelper.getAuthInfoFromStorage();
     var errorMessage = isValidate();
     if (errorMessage.isNotEmpty) {
@@ -264,56 +394,98 @@ class EditProductController extends GetxController {
       return;
     } else {
       try {
-        // isLoading(true);
+        isProductAdded(true);
+        final attributeData = attributeValueListModel.value?.data ?? [];
+        var variantCount = attributeData.length;
+        if (listIdsForAttributes.length < variantCount) {
+          variantCount = listIdsForAttributes.length;
+        }
+        if (listOfPrice.length < variantCount) {
+          variantCount = listOfPrice.length;
+        }
+        if (listOfStock.length < variantCount) {
+          variantCount = listOfStock.length;
+        }
+
+        final variantIds = <String>[];
+        final variantValues = <String>[];
+        final variantPrices = <String>[];
+        final variantStocks = <String>[];
+
+        for (var i = 0; i < variantCount; i++) {
+          variantIds.add(selectedAttributeValue.value.toString());
+          variantValues.add(attributeData[i].comment ?? '');
+
+          final priceText = listOfPrice[i].text.trim();
+          variantPrices.add(priceText.isEmpty ? '0' : priceText);
+
+          final stockText = listOfStock[i].text.trim();
+          variantStocks.add(stockText.isEmpty ? '0' : stockText);
+        }
+
+        final hasVariants = variantIds.isNotEmpty;
+
         Map<String, dynamic> formDataMap = {
+          'id': productId.value,
           'title': productTitleController.text.trim(),
-          'stock': stocksAvailable.value ? '1' : '0',
+          'stock': stocksAvailable.value ? '3' : '5',
           'subcategory': selectedCategory.value?.id,
           'cat_id':
               splashController.userInfoModel.value?.data?.shop?.shopCategory,
           'rprice': offerPriceController.text.trim(),
           'sprice': salePriceController.text.trim(),
           'wprice': wholeSaleController.text.trim(),
-          'variable_product': selectedAttributeValue.isNotEmpty ? '1' : '0',
-          'add_produt_id': selectedAttributeValue.isEmpty
-              ? '0'
-              : selectedAttributeValue.value.toString().toLowerCase() == 'size'
-                  ? '1'
-                  : '2',
-          'add_produt_value[]': ['medium', 'large', 'small'],
-          'price[]': ['1000', '1500', '1200'],
+          'variable_product': hasVariants ? '1' : '0',
           'barcode': barCodeController.text.trim(),
           'summary': productDescriptionController.text.trim(),
           'is_featured': 'no',
-          'add_produt_id[]': [
-            '51',
-            '52',
-            '53',
-          ],
           'brand_id': selectedBrand.value?.id,
+          // 'id': productId.value,
         };
+
+        if (hasVariants) {
+          formDataMap['add_produt_id'] = selectedAttributeValue.value;
+          formDataMap['add_produt_value[]'] = variantValues;
+          formDataMap['price[]'] = variantPrices;
+          formDataMap['quantity[]'] = variantStocks;
+          formDataMap['add_produt_id[]'] = listIdsForAttributes.isNotEmpty
+              ? listIdsForAttributes.map((id) => id.toString()).toList()
+              : variantIds;
+        }
         print('formDataMap: ${jsonEncode(formDataMap)}');
 
-        // // Add photo as MultipartFile if image is selected
-        // if (productImageFile.value != null) {
-        //   formDataMap['photo'] = await dio.MultipartFile.fromFile(
-        //     productImageFile.value!.path,
-        //     filename: productImageFile.value!.path.split('/').last,
-        //   );
-        // }
+        // Add photo as MultipartFile only if user picked a new image
+        if (productImageFile.value != null) {
+          formDataMap['photo'] = await dio.MultipartFile.fromFile(
+            productImageFile.value!.path,
+            filename: productImageFile.value!.path.split('/').last,
+          );
+        }
 
-        // dio.FormData formData = dio.FormData.fromMap(formDataMap);
+        dio.FormData formData = dio.FormData.fromMap(formDataMap);
 
-        // final response = await APIHelper().request(
-        //   url: 'seller/product/create',
-        //   method: Method.POST,
-        //   token: token?['token'],
-        //   params: formData,
-        // );
-        // print('response create product: ${response.data}');
+        final response = await APIHelper().request(
+          url: 'seller/products/update',
+          method: Method.POST,
+          token: token?['token'],
+          params: formData,
+        );
+        print('response update product: ${response.data}');
+        productAddedModel.value = ProductAddedModel.fromJson(response.data);
+        isProductAdded(false);
+        if (productAddedModel.value?.status == true) {
+          showSnackBar('Product updated successfully');
+          // Get.back();
+        } else if (productAddedModel.value?.status == false) {
+          showSnackBar(
+              productAddedModel.value?.errors ?? 'Failed to update product');
+        }
       } catch (e) {
-        print('error create product: ${e.toString()}');
-        // handleControllerExceptions(e);
+        isProductAdded(false);
+        print('error update product: ${e.toString()}');
+        showSnackBar(e.toString().contains('Exception')
+            ? 'Failed to update product'
+            : e.toString());
       }
     }
   }
@@ -333,7 +505,7 @@ class EditProductController extends GetxController {
     if (selectedCategory.value == null) {
       return 'Please select category';
     }
-    if (productImageFile.value == null) {
+    if (productImageFile.value == null && productPhotoUrl.value.isEmpty) {
       return 'Please select product image';
     }
     if (salePriceController.text.isEmpty || salePriceController.text == '') {

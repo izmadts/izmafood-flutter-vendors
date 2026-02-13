@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:izma_foods_vendor/config/theme.dart';
+import 'package:izma_foods_vendor/controllers/edit_product_controller.dart';
 import 'package:izma_foods_vendor/controllers/product_list_controller.dart';
 import 'package:izma_foods_vendor/helpers/global_helpers.dart';
 import 'package:izma_foods_vendor/pages/products/add_new_product.dart';
+import 'package:izma_foods_vendor/pages/products/edit_product.dart';
+import 'package:izma_foods_vendor/pages/products/my_product_page.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_app_bar.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_radial_gradient_container.dart';
 
@@ -18,8 +21,28 @@ class ProductsPage extends GetView<ProductListController> {
         child: Column(
           children: [
             IzmaAppBar(
-              title: "Product Lists to Add",
+              title: "Producta to Add",
               actions: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 10, bottom: 10),
+                  child: GestureDetector(
+                    onTap: () => Get.to(() => MyProductPage()),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                          color: kcSecondaryColor,
+                          borderRadius: BorderRadius.circular(kdBorderRadius)),
+                      child: Text(
+                        "My Products",
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: kcPrimaryColor,
+                            ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10),
                 Padding(
                   padding: const EdgeInsets.only(top: 10, bottom: 10),
                   child: GestureDetector(
@@ -238,13 +261,24 @@ class ProductsPage extends GetView<ProductListController> {
                               ),
                               SizedBox(width: 4),
                               GestureDetector(
-                                onTap: () => controller.addProduct(
-                                    index,
-                                    controller
-                                        .listOfTextEditingControllers[index]
-                                        .text,
-                                    controller.productListModel.value?.data
-                                        ?.data?[index].id),
+                                onTap: () {
+                                  if (controller.productListModel.value?.data
+                                          ?.data?[index].isAdded ==
+                                      '0') {
+                                    controller.addProduct(
+                                        index,
+                                        controller
+                                            .listOfTextEditingControllers[index]
+                                            .text,
+                                        controller.productListModel.value?.data
+                                            ?.data?[index].id);
+                                  } else {
+                                    Get.to(() => EditProductPage(), arguments: {
+                                      'productId': controller.productListModel
+                                          .value?.data?.data?[index].id,
+                                    });
+                                  }
+                                },
                                 child: Container(
                                   height: 40,
                                   width: 40,

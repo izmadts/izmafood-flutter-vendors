@@ -10,6 +10,7 @@ import 'package:izma_foods_vendor/controllers/splash_controller.dart';
 import 'package:izma_foods_vendor/helpers/api_exception.dart';
 import 'package:izma_foods_vendor/helpers/api_helper.dart';
 import 'package:izma_foods_vendor/helpers/global_helpers.dart';
+import 'package:izma_foods_vendor/models/add_product_model.dart';
 import 'package:izma_foods_vendor/models/attribute_model.dart'
     as attribute_model;
 import 'package:izma_foods_vendor/models/attribute_value_model.dart'
@@ -27,6 +28,7 @@ class AddProductController extends GetxController {
   final categoryListModel = Rxn<CategoryModel>();
   final selectedCategory = Rxn<SubCategory>();
   final isLoading = false.obs;
+  final isProductAdded = false.obs;
   final attributeListModel = Rxn<attribute_model.AttributeModel>();
   final selectedAttribute = Rxn<attribute_model.Datum>();
   final selectedAttributeValue = ''.obs;
@@ -45,6 +47,7 @@ class AddProductController extends GetxController {
   final listOfStock = RxList<TextEditingController>();
   final splashController = Get.find<SplashController>();
   final listIdsForAttributes = RxList<int>();
+  final productAddedModel = Rxn<ProductAddedModel>();
   onInit() {
     super.onInit();
     getBrandList();
@@ -231,7 +234,7 @@ class AddProductController extends GetxController {
       return;
     } else {
       try {
-        isLoading(true);
+        isProductAdded(true);
         final attributeData = attributeValueListModel.value?.data ?? [];
         var variantCount = attributeData.length;
         if (listIdsForAttributes.length < variantCount) {
@@ -304,11 +307,19 @@ class AddProductController extends GetxController {
           params: formData,
         );
         print('response create product: ${response.data}');
-        isLoading(false);
+        productAddedModel.value = ProductAddedModel.fromJson(response.data);
+        isProductAdded(false);
+        if (productAddedModel.value?.status == true) {
+          showSnackBar('Product added successfully');
+        } else if (productAddedModel.value?.status == false) {
+          showSnackBar(
+              productAddedModel.value?.errors ?? 'Failed to add product');
+        }
       } catch (e) {
-        isLoading(false);
+        isProductAdded(false);
         print('error create product: ${e.toString()}');
-        // handleControllerExceptions(e);
+        // showSnackBar(e.toString());
+        handleControllerExceptions(e);
       }
     }
   }

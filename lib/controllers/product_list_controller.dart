@@ -5,6 +5,7 @@ import 'package:izma_foods_vendor/helpers/api_exception.dart';
 import 'package:izma_foods_vendor/helpers/api_helper.dart';
 import 'package:izma_foods_vendor/helpers/global_helpers.dart';
 import 'package:izma_foods_vendor/models/category_model.dart';
+import 'package:izma_foods_vendor/models/my_product_model.dart';
 import 'package:izma_foods_vendor/models/new_base_model.dart';
 import 'package:izma_foods_vendor/models/product_list_model.dart';
 
@@ -18,13 +19,50 @@ class ProductListController extends GetxController {
   // final isSelectedCategory = 0.obs;
   final selectedCategory = Rxn<SubCategory>();
   final searchController = TextEditingController();
+  final myProductsModel = Rxn<MyProductModel>();
+  final myProductsLoading = false.obs;
+  final listOfMyProductsTextEditingControllers =
+      RxList<TextEditingController>();
 
   @override
   void onInit() {
     super.onInit();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       getCategories();
+      getMyProducts();
     });
+  }
+
+  getMyProducts() async {
+    var token = await LocalStorageHelper.getAuthInfoFromStorage();
+    try {
+      myProductsLoading(true);
+      final response = await APIHelper().request(
+        method: Method.GET,
+        url: 'seller/myproducts',
+        token: token?['token'],
+      );
+      myProductsModel.value = MyProductModel.fromJson(response.data);
+      print("testing: ${myProductsModel.value?.data?.length}");
+      if (myProductsModel.value?.status == true) {
+        for (var element in myProductsModel.value?.data ?? []) {
+          listOfMyProductsTextEditingControllers
+              .add(TextEditingController(text: element.rprice ?? '0'));
+        }
+        showSnackBar('My products fetched successfully');
+      } else {
+        throw APIException(
+          message: 'Failed to fetch my products',
+          statusCode: response.statusCode ?? 500,
+        );
+      }
+      myProductsLoading(false);
+    } catch (e) {
+      myProductsLoading(false);
+      handleControllerExceptions(e);
+    } finally {
+      myProductsLoading(false);
+    }
   }
 
   searchProduct(String search, int? id) async {
@@ -115,7 +153,7 @@ class ProductListController extends GetxController {
       newBaseModel.value = NewBaseModel.fromJson(response.data);
       if (newBaseModel.value?.status == true) {
         showSnackBar('Product added successfully');
-      await  getProductList(selectedCategory.value?.id);
+        await getProductList(selectedCategory.value?.id);
       } else {
         throw APIException(
           message: 'Failed to add product',
