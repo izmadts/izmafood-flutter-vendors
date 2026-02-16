@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:izma_foods_vendor/config/theme.dart';
+import 'package:izma_foods_vendor/controllers/orders_controller.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_app_bar.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_primary_button.dart';
 import 'package:izma_foods_vendor/pages/widget/izma_radial_gradient_container.dart';
 
-class OrderDetailsPage extends StatelessWidget {
-  const OrderDetailsPage({super.key});
+class OrderDetailsPage extends GetView<OrdersController> {
+  OrderDetailsPage({super.key});
+  final controller = Get.find<OrdersController>();
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +76,25 @@ class OrderDetailsPage extends StatelessWidget {
                     SizedBox(height: kdPadding),
                     _buildDeliveryManInfo(context),
                     SizedBox(height: kdPadding * 3),
-                    IzmaPrimaryButton(title: "Accept")
+                    IzmaPrimaryButton(
+                      title: "Accept",
+                      onTap: () {
+                        controller.acceptOrder();
+                      },
+                    ),
+                    SizedBox(height: kdPadding * 1),
+                    Visibility(
+                      visible:
+                          controller.selectedOrderStatus.value == "Pending",
+                      child: IzmaPrimaryButton(
+                        bgColor: Colors.red,
+                        title: "Reject",
+                        onTap: () {
+                          controller.rejectOrder();
+                        },
+                        hideSuffixIcon: true,
+                      ),
+                    )
                   ],
                 ),
               )

@@ -37,14 +37,18 @@ class OrdersPage extends GetView<OrdersController> {
                       onRefresh: controller.getOrders,
                       child: orders.isEmpty
                           ? ListView(
-                              padding: EdgeInsets.symmetric(horizontal: kdPadding),
+                              padding:
+                                  EdgeInsets.symmetric(horizontal: kdPadding),
                               physics: const AlwaysScrollableScrollPhysics(),
                               children: [
                                 SizedBox(height: 100.h),
                                 Center(
                                   child: Text(
                                     'No ${controller.selectedOrderStatus.value} orders',
-                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
                                           color: kcTextGreyColor,
                                         ),
                                   ),
@@ -53,7 +57,8 @@ class OrdersPage extends GetView<OrdersController> {
                             )
                           : ListView.separated(
                               itemCount: orders.length,
-                              padding: EdgeInsets.symmetric(horizontal: kdPadding),
+                              padding:
+                                  EdgeInsets.symmetric(horizontal: kdPadding),
                               physics: const AlwaysScrollableScrollPhysics(),
                               itemBuilder: (context, index) {
                                 return _buildOrderItem(orders[index], context);
@@ -85,7 +90,8 @@ class OrdersPage extends GetView<OrdersController> {
               child: GestureDetector(
                 onTap: () => controller.selectedOrderStatus.value = status,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
                   decoration: BoxDecoration(
                     color: isSelected ? kcSecondaryColor : kcPrimaryColor,
                     borderRadius: BorderRadius.circular(kdBorderRadius),
@@ -111,10 +117,15 @@ class OrdersPage extends GetView<OrdersController> {
 
   Widget _buildOrderItem(Cancelled order, BuildContext context) {
     return InkWell(
-      onTap: () => Get.to(
-        () => OrderDetailsPage(),
-        arguments: {'order': order},
-      ),
+      onTap: () {
+        Get.to(() => OrderDetailsPage()
+            // , arguments: {
+            // 'order': order.id ?? '',
+            // 'orderStatus': controller.selectedOrderStatus.value,
+            // }
+            );
+        controller.orderId.value = order.id?.toString() ?? '';
+      },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
         decoration: BoxDecoration(
@@ -180,7 +191,8 @@ class OrdersPage extends GetView<OrdersController> {
                 ],
                 SizedBox(height: 8.h),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
                   decoration: BoxDecoration(
                     color: kcSecondaryColor,
                     borderRadius: BorderRadius.circular(kdBorderRadius),

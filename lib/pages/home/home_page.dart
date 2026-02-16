@@ -106,7 +106,7 @@ class HomePage extends GetView<DashBoardController> {
                         context: context),
                     SizedBox(width: kdPadding),
                     _buildDashboardButton(
-                        title: "Live Orders",
+                        title: "Ratings",
                         icon: Icons.star_rounded,
                         context: context),
                   ],

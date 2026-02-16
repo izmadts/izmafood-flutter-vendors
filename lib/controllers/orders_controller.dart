@@ -4,11 +4,14 @@ import 'package:izma_foods_vendor/helpers/api_helper.dart';
 import 'package:izma_foods_vendor/helpers/global_helpers.dart';
 import 'package:izma_foods_vendor/models/live_order_tracking_model.dart'
     show Cancelled, LiveOrderTrackingModel;
+import 'package:izma_foods_vendor/models/update_order_status_model.dart';
 
 class OrdersController extends GetxController {
   final selectedOrderStatus = 'Pending'.obs;
   final liveOrderTrackingModel = Rxn<LiveOrderTrackingModel>();
   final isLoading = false.obs;
+  final orderId = ''.obs;
+  final orderStausModel = Rxn<UpdateOrderStatusModel>();
 
   static const orderStatuses = [
     'Pending',
@@ -60,6 +63,52 @@ class OrdersController extends GetxController {
       handleControllerExceptions(e);
     } finally {
       isLoading(false);
+    }
+  }
+
+  Future<void> acceptOrder() async {
+    var token = await LocalStorageHelper.getAuthInfoFromStorage();
+    try {
+      final response = await APIHelper().request(
+        url: 'seller/orders/status/update',
+        method: Method.POST,
+        token: token?['token'],
+        params: {
+          'order_id': orderId.value,
+          'status': 'confirmed',
+        },
+      );
+      orderStausModel.value = UpdateOrderStatusModel.fromJson(response.data);
+      if (orderStausModel.value?.status == true) {
+        showSnackBar('Order accepted successfully');
+        await getOrders();
+        Get.back();
+      }
+    } catch (e) {
+      handleControllerExceptions(e);
+    }
+  }
+
+  Future<void> rejectOrder() async {
+    var token = await LocalStorageHelper.getAuthInfoFromStorage();
+    try {
+      final response = await APIHelper().request(
+        url: 'seller/orders/status/update',
+        method: Method.POST,
+        token: token?['token'],
+        params: {
+          'order_id': orderId.value,
+          'status': 'cancelled',
+        },
+      );
+      orderStausModel.value = UpdateOrderStatusModel.fromJson(response.data);
+      if (orderStausModel.value?.status == true) {
+        showSnackBar('Order rejected');
+        await getOrders();
+        Get.back();
+      }
+    } catch (e) {
+      handleControllerExceptions(e);
     }
   }
 }
