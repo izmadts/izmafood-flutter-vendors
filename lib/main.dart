@@ -1,9 +1,12 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:izma_foods_vendor/controllers/auth_controller.dart';
+import 'package:izma_foods_vendor/core/notification_service.dart';
+import 'package:izma_foods_vendor/firebase_options.dart';
 import 'package:izma_foods_vendor/helpers/api_helper.dart';
 import 'package:izma_foods_vendor/pages/splash_page.dart';
 
@@ -11,6 +14,9 @@ import 'config/theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await GetStorage.init();
 
   // Try to load .env file, but continue if it doesn't exist
@@ -22,6 +28,8 @@ Future<void> main() async {
 
   // Initialize API helper
   await APIHelper.init();
+  final fcmToken = await NotificationService().getFCMToken();
+  print("FCM Token: $fcmToken");
   runApp(const MyApp());
 }
 

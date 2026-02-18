@@ -1,0 +1,126 @@
+{
+  "project_info": {
+    "project_number": "659535326641",
+    "project_id": "izmafood-6c1a2",
+    "storage_bucket": "izmafood-6c1a2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:659535326641:android:b2345bb5e56ac63cc36190",
+        "android_client_info": {
+          "package_name": "com.example.izma_foods"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "659535326641-j95qadv7iu5usschnfaj3c7h1pg67sm3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.izma_foods",
+            "certificate_hash": "2655453c618a8c4a179464a7963e465a224fc17f"
+          }
+        },
+        {
+          "client_id": "659535326641-t73h7l2bbrtrsfjfm0mskii3q6odm4eb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAx9FhaZulBkNpbDr79K3WATwWAfQ6fjkM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "659535326641-luv21m5f7hivp9g8d1t5dbnrtoa3o77v.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "659535326641-aaho3m8t1pang6276afkhvl7nn7k4am0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.izmaFoods"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:659535326641:android:5214d4cc2a6c9dfdc36190",
+        "android_client_info": {
+          "package_name": "com.example.izma_foods_vendor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "659535326641-t73h7l2bbrtrsfjfm0mskii3q6odm4eb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAx9FhaZulBkNpbDr79K3WATwWAfQ6fjkM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "659535326641-luv21m5f7hivp9g8d1t5dbnrtoa3o77v.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "659535326641-aaho3m8t1pang6276afkhvl7nn7k4am0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.izmaFoods"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:659535326641:android:2ae426d8423be349c36190",
+        "android_client_info": {
+          "package_name": "izmafood.dts"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "659535326641-t73h7l2bbrtrsfjfm0mskii3q6odm4eb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAx9FhaZulBkNpbDr79K3WATwWAfQ6fjkM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "659535326641-luv21m5f7hivp9g8d1t5dbnrtoa3o77v.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "659535326641-aaho3m8t1pang6276afkhvl7nn7k4am0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.izmaFoods"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
