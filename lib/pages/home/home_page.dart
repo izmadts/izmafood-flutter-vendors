@@ -55,29 +55,35 @@ class HomePage extends GetView<DashBoardController> {
                     .bodyLarge
                     ?.copyWith(color: kcSecondaryColor),
               ),
-              _buildDashboardCard(
-                  title: "Revenue",
-                  icon: Icons.attach_money_outlined,
-                  comment: "Shipping fees are not included",
-                  value:
-                      "Rs ${controller.dashBoardModel.value?.data?.revenue ?? 0}",
-                  context: context),
+              Obx(
+                () => _buildDashboardCard(
+                    title: "Revenue",
+                    icon: Icons.attach_money_outlined,
+                    comment: "Shipping fees are not included",
+                    value:
+                        "Rs ${controller.dashBoardModel.value?.data?.revenue ?? 0}",
+                    context: context),
+              ),
               SizedBox(height: kdPadding),
-              _buildDashboardCard(
-                  title: "Orders",
-                  icon: Icons.shopping_cart_rounded,
-                  comment: "Shipping fees are not included",
-                  value:
-                      "Rs ${controller.dashBoardModel.value?.data?.totalOrders ?? 0}",
-                  context: context),
+              Obx(
+                () => _buildDashboardCard(
+                    title: "Orders",
+                    icon: Icons.shopping_cart_rounded,
+                    comment: "Shipping fees are not included",
+                    value:
+                        "Rs ${controller.dashBoardModel.value?.data?.totalOrders ?? 0}",
+                    context: context),
+              ),
               SizedBox(height: kdPadding),
-              _buildDashboardCard(
-                  title: "Products",
-                  icon: Icons.list,
-                  comment: "Shipping fees are not included",
-                  value:
-                      "Rs ${controller.dashBoardModel.value?.data?.totalProducts ?? 0}",
-                  context: context),
+              Obx(
+                () => _buildDashboardCard(
+                    title: "Products",
+                    icon: Icons.list,
+                    comment: "Shipping fees are not included",
+                    value:
+                        "Rs ${controller.dashBoardModel.value?.data?.totalProducts ?? 0}",
+                    context: context),
+              ),
               SizedBox(height: kdPadding),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: kdPadding),
