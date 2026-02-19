@@ -118,13 +118,9 @@ class OrdersPage extends GetView<OrdersController> {
   Widget _buildOrderItem(Cancelled order, BuildContext context) {
     return InkWell(
       onTap: () {
-        Get.to(() => OrderDetailsPage()
-            // , arguments: {
-            // 'order': order.id ?? '',
-            // 'orderStatus': controller.selectedOrderStatus.value,
-            // }
-            );
         controller.orderId.value = order.id?.toString() ?? '';
+        Get.to(() => OrderDetailsPage());
+        controller.orderDetails();
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),

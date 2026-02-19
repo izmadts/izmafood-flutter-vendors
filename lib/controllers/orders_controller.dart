@@ -1,9 +1,11 @@
 import 'package:get/get.dart';
 import 'package:izma_foods_vendor/config/local_storage.dart';
+import 'package:izma_foods_vendor/helpers/api_exception.dart';
 import 'package:izma_foods_vendor/helpers/api_helper.dart';
 import 'package:izma_foods_vendor/helpers/global_helpers.dart';
 import 'package:izma_foods_vendor/models/live_order_tracking_model.dart'
     show Cancelled, LiveOrderTrackingModel;
+import 'package:izma_foods_vendor/models/order_detail_model.dart';
 import 'package:izma_foods_vendor/models/update_order_status_model.dart';
 
 class OrdersController extends GetxController {
@@ -12,6 +14,8 @@ class OrdersController extends GetxController {
   final isLoading = false.obs;
   final orderId = ''.obs;
   final orderStausModel = Rxn<UpdateOrderStatusModel>();
+  final orderDetailsModel = Rxn<OrderDetailModel>();
+  final isOrderDetailsLoading = false.obs;
 
   static const orderStatuses = [
     'Pending',
@@ -109,6 +113,33 @@ class OrdersController extends GetxController {
       }
     } catch (e) {
       handleControllerExceptions(e);
+    }
+  }
+
+  Future<void> orderDetails() async {
+    if (orderId.value.isEmpty) return;
+    var token = await LocalStorageHelper.getAuthInfoFromStorage();
+    try {
+      isOrderDetailsLoading(true);
+      final response = await APIHelper().request(
+        url: 'seller/order/detail/${orderId.value}',
+        method: Method.GET,
+        token: token?['token'],
+      );
+      final data = response.data;
+      if (data is Map<String, dynamic>) {
+        orderDetailsModel.value = OrderDetailModel.fromJson(data);
+      }
+      if (orderDetailsModel.value?.status != true) {
+        throw APIException(
+          message: 'Failed to fetch order details',
+          statusCode: response.statusCode ?? 500,
+        );
+      }
+    } catch (e) {
+      handleControllerExceptions(e);
+    } finally {
+      isOrderDetailsLoading(false);
     }
   }
 }

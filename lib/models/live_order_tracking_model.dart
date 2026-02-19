@@ -45,7 +45,7 @@ class Cancelled {
     String? shopName;
     String? lastStatus;
     String? status;
-    int? lastStatusId;
+    String? lastStatusId;
     DateTime? time;
     String? client;
     String? orderStatus;
