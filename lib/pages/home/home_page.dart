@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:izma_foods_vendor/config/theme.dart';
 import 'package:izma_foods_vendor/controllers/dash_board_controller.dart';
@@ -16,9 +17,15 @@ class HomePage extends GetView<DashBoardController> {
         child: SafeArea(
           child: Column(
             children: [
-              IzmaAppBar(
-                title: "IZMA Food",
-                showCustomActions: false,
+              Row(
+                children: [
+                  Image.asset(
+                    'assets/icons/app-logo-text.png',
+                    width: 100.w,
+                    height: 50.h,
+                    fit: BoxFit.fitWidth,
+                  ),
+                ],
               ),
               Container(
                 alignment: Alignment.center,

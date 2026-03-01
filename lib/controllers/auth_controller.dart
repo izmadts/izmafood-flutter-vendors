@@ -8,6 +8,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:izma_foods_vendor/config/local_storage.dart';
+import 'package:izma_foods_vendor/core/notification_service.dart';
 import 'package:izma_foods_vendor/helpers/api_exception.dart';
 import 'package:izma_foods_vendor/helpers/global_helpers.dart';
 import 'package:izma_foods_vendor/models/base_model.dart';
@@ -141,6 +142,7 @@ class AuthController extends GetxController {
   }) async {
     // final deviceInfo = await FunctionalConstants().getDeviceInfo();
     // print(deviceInfo['deviceID']);
+    final fcmToken = await NotificationService().getFCMToken();
     isLoading(true);
     try {
       final response = await APIHelper().request(
@@ -149,7 +151,7 @@ class AuthController extends GetxController {
         params: {
           'user': emailOrPhoneNumber,
           'password': password,
-          // 'device_id': deviceInfo['deviceID'],
+          'device_id': fcmToken,
         },
       );
       print('response login: ${jsonEncode(response.data)}');
